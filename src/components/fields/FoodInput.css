@@ -110,6 +110,24 @@
   color: var(--text-muted);
 }
 
+.food-search-online {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--meal-color);
+  background: transparent;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.food-search-online:active {
+  background: var(--bg-input);
+}
+
 /* Items list (chips) */
 .food-items {
   display: flex;

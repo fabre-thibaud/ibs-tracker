@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods } from '../../utils/usda.js'
+import { searchFoods, searchLocalFoods, cacheFood } from '../../utils/usda.js'
 import './FoodInput.css'
 
 const COMMON_FOODS = [
@@ -22,16 +22,30 @@ export default function FoodInput({ label, value = [], onChange }) {
   const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [isLocalResults, setIsLocalResults] = useState(false)
   const inputRef = useRef(null)
 
-  // Handle autocomplete search
+  // Handle autocomplete search — local cache first, then API
   useEffect(() => {
     if (inputValue.length < 2) {
       setSuggestions([])
       setShowDropdown(false)
+      setIsLocalResults(false)
       return
     }
 
+    // Search local cache first (instant, no debounce)
+    const localResults = searchLocalFoods(inputValue)
+    if (localResults.length > 0) {
+      setSuggestions(localResults)
+      setIsLocalResults(true)
+      setShowDropdown(true)
+      setLoading(false)
+      return
+    }
+
+    // No local results — fall through to API
+    setIsLocalResults(false)
     setLoading(true)
     setShowDropdown(true)
 
@@ -63,14 +77,25 @@ export default function FoodInput({ label, value = [], onChange }) {
       return
     }
 
+    cacheFood(foodName)
     onChange([...value, newItem])
     setInputValue('')
     setSuggestions([])
     setShowDropdown(false)
+    setIsLocalResults(false)
   }
 
   function removeFood(index) {
     onChange(value.filter((_, i) => i !== index))
+  }
+
+  function handleSearchOnline() {
+    setIsLocalResults(false)
+    setLoading(true)
+    searchFoods(inputValue).then((results) => {
+      setSuggestions(results)
+      setLoading(false)
+    })
   }
 
   function handleKeyDown(e) {
@@ -137,6 +162,16 @@ export default function FoodInput({ label, value = [], onChange }) {
                 </div>
               )
             })}
+
+            {!loading && isLocalResults && (
+              <button
+                type="button"
+                className="food-search-online"
+                onClick={handleSearchOnline}
+              >
+                Search online for more...
+              </button>
+            )}
           </div>
         )}
       </div>
