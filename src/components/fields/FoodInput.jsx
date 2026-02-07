@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods, searchLocalFoods, cacheFood } from '../../utils/openfoodfacts.js'
+import { searchFoods, searchLocalFoods, cacheFood, incrementFoodStat, getTopFoods } from '../../utils/openfoodfacts.js'
 import './FoodInput.css'
 
-const COMMON_FOODS = [
+const FALLBACK_FOODS = [
   'Rice', 'Chicken', 'Eggs', 'Bread', 'Pasta', 'Potato', 'Banana', 'Oats',
   'Salmon', 'Yogurt', 'Cheese', 'Tomato', 'Spinach', 'Carrot', 'Apple',
   'Onion', 'Garlic', 'Avocado', 'Milk', 'Butter'
@@ -23,7 +23,20 @@ export default function FoodInput({ label, value = [], onChange }) {
   const [loading, setLoading] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
   const [isLocalResults, setIsLocalResults] = useState(false)
+  const [quickAddFoods, setQuickAddFoods] = useState([])
   const inputRef = useRef(null)
+
+  // Load top foods from statistics on mount
+  useEffect(() => {
+    const topFoods = getTopFoods(10)
+    if (topFoods.length >= 10) {
+      setQuickAddFoods(topFoods)
+    } else {
+      // Combine top foods with fallback to get 12 items
+      const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
+      setQuickAddFoods(combined)
+    }
+  }, [])
 
   // Search local cache as user types (instant, no API call)
   useEffect(() => {
@@ -71,11 +84,21 @@ export default function FoodInput({ label, value = [], onChange }) {
     }
 
     cacheFood(foodName)
+    incrementFoodStat(foodName)
     onChange([...value, newItem])
     setInputValue('')
     setSuggestions([])
     setShowDropdown(false)
     setIsLocalResults(false)
+
+    // Refresh quick-add buttons after adding a food
+    const topFoods = getTopFoods(10)
+    if (topFoods.length >= 10) {
+      setQuickAddFoods(topFoods)
+    } else {
+      const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
+      setQuickAddFoods(combined)
+    }
   }
 
   function removeFood(index) {
@@ -122,7 +145,7 @@ export default function FoodInput({ label, value = [], onChange }) {
 
       {/* Quick-add buttons */}
       <div className="food-quick-add">
-        {COMMON_FOODS.slice(0, 12).map((food) => (
+        {quickAddFoods.map((food) => (
           <button
             key={food}
             type="button"
