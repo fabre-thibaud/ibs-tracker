@@ -1,0 +1,95 @@
+.fab-container {
+  position: fixed;
+  bottom: calc(var(--tabbar-height) + var(--sab) + 16px);
+  right: 16px;
+  z-index: 90;
+}
+
+.fab-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 89;
+  animation: fadeIn 0.15s ease;
+}
+
+.fab-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--meal-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transition: transform 0.2s ease, background 0.15s;
+}
+
+.fab-button:active {
+  transform: scale(0.95);
+}
+
+.fab-button.open {
+  background: var(--text-secondary);
+  transform: rotate(45deg);
+}
+
+.fab-menu {
+  position: absolute;
+  bottom: 68px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slideUp 0.2s ease;
+}
+
+.fab-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row-reverse;
+}
+
+.fab-menu-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.15s;
+}
+
+.fab-menu-btn:active {
+  transform: scale(0.92);
+}
+
+.fab-menu-btn--meal { background: var(--meal-color); }
+.fab-menu-btn--pain { background: var(--pain-color); }
+.fab-menu-btn--bowel { background: var(--bowel-color); }
+.fab-menu-btn--summary { background: var(--summary-color); }
+
+.fab-menu-label {
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

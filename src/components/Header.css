@@ -1,0 +1,69 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--header-height) + var(--sat));
+  padding-top: var(--sat);
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 8px;
+  padding-right: 8px;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.header-nav-btn {
+  width: var(--min-touch);
+  height: var(--min-touch);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: background 0.15s;
+}
+
+.header-nav-btn:active {
+  background: var(--bg-input);
+}
+
+.header-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 160px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.header-today-btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--meal-color);
+  color: white;
+  transition: opacity 0.15s;
+}
+
+.header-today-btn:active {
+  opacity: 0.8;
+}
+
+.header-today-btn.hidden {
+  visibility: hidden;
+}

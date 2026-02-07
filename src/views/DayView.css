@@ -1,0 +1,177 @@
+.day-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ===== Entry Card ===== */
+.entry-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  border-left: 4px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.1s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.entry-card:active {
+  transform: scale(0.99);
+}
+
+.entry-card--meal { border-left-color: var(--meal-color); }
+.entry-card--pain { border-left-color: var(--pain-color); }
+.entry-card--bowel { border-left-color: var(--bowel-color); }
+.entry-card--summary { border-left-color: var(--summary-color); }
+
+.entry-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.entry-card-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.entry-card--meal .entry-card-type { color: var(--meal-color); }
+.entry-card--pain .entry-card-type { color: var(--pain-color); }
+.entry-card--bowel .entry-card-type { color: var(--bowel-color); }
+.entry-card--summary .entry-card-type { color: var(--summary-color); }
+
+.entry-card-time {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.entry-card-body {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.entry-card-detail {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+
+.entry-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.entry-card-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+}
+
+.entry-card-tag--alert {
+  background: var(--concern-bg);
+  color: var(--concern);
+}
+
+.entry-card-tag--good {
+  background: var(--good-bg);
+  color: var(--good);
+}
+
+/* ===== Summary Card ===== */
+.summary-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  border-left: 4px solid var(--summary-color);
+  cursor: pointer;
+}
+
+.summary-card:active {
+  transform: scale(0.99);
+}
+
+.summary-card-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--summary-color);
+  margin-bottom: 8px;
+}
+
+.summary-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.summary-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.summary-metric-label {
+  color: var(--text-secondary);
+}
+
+.summary-metric-value {
+  font-weight: 600;
+}
+
+.summary-notes {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.empty-state-desc {
+  font-size: 0.9rem;
+}
+
+/* ===== Severity Badge ===== */
+.severity-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  color: white;
+}
+
+.severity-low { background: var(--good); }
+.severity-med { background: var(--caution); }
+.severity-high { background: var(--concern); }
