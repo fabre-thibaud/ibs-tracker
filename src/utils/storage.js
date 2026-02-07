@@ -1,12 +1,16 @@
+import { migrateData, CURRENT_VERSION } from './migrations.js'
+
 const DATA_KEY = 'ibs-tracker-data'
 const SETTINGS_KEY = 'ibs-tracker-settings'
 
 export function loadData() {
   try {
     const raw = localStorage.getItem(DATA_KEY)
-    return raw ? JSON.parse(raw) : {}
+    if (!raw) return { _version: CURRENT_VERSION }
+    const data = JSON.parse(raw)
+    return migrateData(data)
   } catch {
-    return {}
+    return { _version: CURRENT_VERSION }
   }
 }
 

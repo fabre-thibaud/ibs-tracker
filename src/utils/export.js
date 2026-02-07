@@ -115,7 +115,7 @@ export function generateCSV(data) {
     ['Date', 'Type', 'Time', 'Details'].join(',')
   ]
 
-  const dates = Object.keys(data).sort()
+  const dates = Object.keys(data).filter((k) => !k.startsWith('_')).sort()
   for (const date of dates) {
     const day = data[date]
 

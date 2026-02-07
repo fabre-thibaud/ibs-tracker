@@ -76,6 +76,79 @@ Settings stored separately under key `ibs-tracker-settings`:
 { "theme": "light" }
 ```
 
+### Data Versioning & Migration
+
+Since all user data lives in localStorage and persists across app updates, schema changes must be handled carefully to avoid data loss or corruption.
+
+#### Version Tracking
+
+A `_version` field is stored at the root of the data object:
+
+```json
+{
+  "_version": 1,
+  "2026-02-07": { ... }
+}
+```
+
+The current schema version is defined as a constant in `storage.js`. On app load, the stored version is compared to the code version. If they differ, migrations run sequentially.
+
+#### Migration Rules
+
+1. **New fields are always optional and have defaults.** When reading an entry, code must tolerate missing fields gracefully (e.g. `entry.newField ?? defaultValue`). This means old data works without any migration.
+
+2. **Fields are never renamed.** If a field name is wrong, add the new name alongside the old one and read from both (`entry.newName ?? entry.oldName`). The old field can be cleaned up in a migration, but reading must handle both.
+
+3. **Fields are never removed from existing entries.** Unused fields are simply ignored. No migration needed — they're inert.
+
+4. **Type changes are forbidden.** A field that was a `string` stays a `string`. If a different type is needed, add a new field.
+
+5. **Enum values are never renamed or removed.** New values can be added freely. If an old value needs to change, map it during reads (e.g. `value === 'OldName' ? 'NewName' : value`).
+
+#### Migration System
+
+Migrations live in `utils/migrations.js` as an ordered array of functions:
+
+```js
+const CURRENT_VERSION = 1
+
+const migrations = [
+  // v0 → v1: initial schema, no changes needed
+  // v1 → v2: (example) add "hydration" field to meals
+  // (data) => {
+  //   for (const [date, day] of Object.entries(data)) {
+  //     if (date.startsWith('_')) continue
+  //     for (const meal of day.meals || []) {
+  //       meal.hydration = meal.hydration ?? null
+  //     }
+  //   }
+  //   return data
+  // },
+]
+
+export function migrateData(data) {
+  let version = data._version ?? 0
+  while (version < CURRENT_VERSION) {
+    data = migrations[version](data)
+    version++
+  }
+  data._version = CURRENT_VERSION
+  return data
+}
+```
+
+Called once in `storage.js > loadData()` before returning data to the app.
+
+#### Backwards Compatibility Checklist (for every change)
+
+Before modifying the data schema, verify:
+
+- [ ] Old data without the new field still renders correctly
+- [ ] New code reading old data doesn't throw or produce NaN/undefined in UI
+- [ ] Migration (if needed) handles empty days, missing arrays, and null summaries
+- [ ] Export functions (`export.js`) handle both old and new field shapes
+- [ ] A migration test covers: load v(N-1) data → run migrate → assert v(N) shape
+
 ---
 
 ## Project Structure
