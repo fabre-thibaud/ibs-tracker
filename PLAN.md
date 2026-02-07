@@ -477,17 +477,31 @@ src/
 - Manual search trigger only (no search-as-you-type)
 - French product names preferred (`product_name_fr` with fallback to `product_name`)
 
-### Quick-Add Common Foods
+### Quick-Add Common Foods — Statistics-Based
 
-Default common foods list (hardcoded, ~20 items covering typical IBS-relevant categories):
+Quick-add buttons are **dynamically generated from user's meal history**, showing the **top 10 most frequently used foods**.
 
-```
-Rice, Chicken, Eggs, Bread, Pasta, Potato, Banana, Oats,
-Salmon, Yogurt, Cheese, Tomato, Spinach, Carrot, Apple,
-Onion, Garlic, Avocado, Milk, Butter
-```
+#### Statistics Tracking
+- **Storage**: `localStorage` key `ibs-tracker-food-stats`
+- **Schema**: `{ [foodName: string]: count: number }` — simple frequency counter
+- **Update**: Increment count every time a food is added (from API, quick-add, or manual entry)
+- **No expiry**: Stats accumulate over time, building a personalized food vocabulary
 
-Additionally, derive "recent foods" from the user's last 50 meal entries (deduplicated by name, most frequent first, max 10 shown).
+#### Button Generation
+1. Load food stats from localStorage
+2. Sort by frequency (descending)
+3. Take top 10 most used foods
+4. Display as quick-add buttons
+5. **Fallback**: If <10 foods in stats, use hardcoded defaults to fill remaining slots:
+   ```
+   Rice, Chicken, Eggs, Bread, Pasta, Potato, Banana, Oats, Salmon, Yogurt
+   ```
+
+#### Benefits
+- **Personalized**: Reflects user's actual eating patterns
+- **Dynamic**: Automatically adapts as diet changes
+- **Fast**: Most-used foods are always one tap away
+- **No manual configuration**: Builds automatically over time
 
 ### Export Compatibility
 
@@ -502,6 +516,7 @@ Additionally, derive "recent foods" from the user's last 50 meal entries (dedupl
 3. **Create `utils/fodmap.js`**: Load + index FODMAP data, export `matchFodmap(name)` function (normalize + fuzzy match)
 4. **Create `utils/openfoodfacts.js`**:
    - `searchFoods(query)` with rate limit protection, local cache (`cacheFood`, `searchLocalFoods`)
+   - Food statistics tracking (`incrementFoodStat`, `getTopFoods`)
    - Custom User-Agent: `"ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)"`
    - API endpoint: `https://world.openfoodfacts.org/cgi/search.pl?search_terms={query}&search_simple=1&json=1&page_size=8&fields=product_name,product_name_fr`
    - Prefer `product_name_fr` over `product_name` for French cuisine
@@ -511,6 +526,8 @@ Additionally, derive "recent foods" from the user's last 50 meal entries (dedupl
    - Search triggered manually (Enter key or button click), not on keystroke
    - Local cache searched as user types (instant, no API call)
    - API only called on explicit search action (respects 10 req/min limit)
+   - Quick-add buttons: Top 10 most frequently used foods from statistics
+   - Fallback to hardcoded defaults if <10 foods in stats
 7. **Update `MealForm`**: Replace `<TextArea label="Food Content" ...>` with `<FoodInput ...>`. Write both `content` and `items` on save.
 8. **Update `DayView` meal cards**: Show item chips with FODMAP dots instead of plain text
 9. **Update `migrations.js`**: Add v1→v2 migration (no-op, just version stamp)
