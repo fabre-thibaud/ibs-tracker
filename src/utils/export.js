@@ -20,13 +20,19 @@ export function generateWeeklySummary(data, dateKey) {
 
   // Meals
   const highFatCount = allMeals.filter((m) => m.highFat).length
+
+  // Extract food words from items (v2) or content (v1 fallback)
   const foodWords = allMeals
-    .map((m) => m.content)
+    .flatMap((m) => {
+      if (m.items && m.items.length > 0) {
+        return m.items.map((item) => item.name)
+      }
+      return (m.content || '').split(/[,;]/)
+    })
     .filter(Boolean)
-    .join(' ')
-    .toLowerCase()
-    .split(/[\s,;.]+/)
+    .map((s) => s.trim().toLowerCase())
     .filter((w) => w.length > 2)
+
   const wordCounts = {}
   for (const w of foodWords) {
     wordCounts[w] = (wordCounts[w] || 0) + 1
@@ -120,9 +126,13 @@ export function generateCSV(data) {
     const day = data[date]
 
     for (const m of day.meals || []) {
+      const foodContent = m.items && m.items.length > 0
+        ? m.items.map((item) => item.name).join(', ')
+        : (m.content || '')
+
       rows.push([
         date, 'Meal', m.time,
-        `"${(m.type || '')} - ${(m.content || '').replace(/"/g, '""')} - ${m.portion || ''} - ${m.highFat ? 'High Fat' : ''}"`
+        `"${(m.type || '')} - ${foodContent.replace(/"/g, '""')} - ${m.portion || ''} - ${m.highFat ? 'High Fat' : ''}"`
       ].join(','))
     }
 

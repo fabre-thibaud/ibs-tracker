@@ -4,7 +4,7 @@ import { getCurrentTime } from '../utils/dates.js'
 import EntryModal from '../components/EntryModal.jsx'
 import TimeField from '../components/fields/TimeField.jsx'
 import OptionButtons from '../components/fields/OptionButtons.jsx'
-import TextArea from '../components/fields/TextArea.jsx'
+import FoodInput from '../components/fields/FoodInput.jsx'
 import Toggle from '../components/fields/Toggle.jsx'
 
 const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
@@ -16,7 +16,7 @@ export default function MealForm({ date, entry, onClose }) {
 
   const [time, setTime] = useState(entry?.time || getCurrentTime())
   const [mealType, setMealType] = useState(entry?.type || '')
-  const [content, setContent] = useState(entry?.content || '')
+  const [items, setItems] = useState(entry?.items || [])
   const [portion, setPortion] = useState(entry?.portion || '')
   const [highFat, setHighFat] = useState(entry?.highFat ?? false)
 
@@ -25,7 +25,8 @@ export default function MealForm({ date, entry, onClose }) {
       id: entry?.id || `m_${Date.now()}`,
       time,
       type: mealType,
-      content,
+      content: items.map((item) => item.name).join(', ') || '',
+      items,
       portion,
       highFat,
     }
@@ -54,7 +55,7 @@ export default function MealForm({ date, entry, onClose }) {
     >
       <TimeField label="Time" value={time} onChange={setTime} />
       <OptionButtons label="Meal Type" options={MEAL_TYPES} value={mealType} onChange={setMealType} />
-      <TextArea label="Food Content" value={content} onChange={setContent} placeholder="What did you eat?" />
+      <FoodInput label="Food & Ingredients" value={items} onChange={setItems} />
       <OptionButtons label="Portion Size" options={PORTIONS} value={portion} onChange={setPortion} />
       <Toggle label="High-Fat Meal" value={highFat} onChange={setHighFat} />
     </EntryModal>
