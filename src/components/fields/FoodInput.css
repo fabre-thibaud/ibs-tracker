@@ -37,8 +37,13 @@
   margin-bottom: 16px;
 }
 
+.food-input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
 .food-text-input {
-  width: 100%;
+  flex: 1;
   height: var(--button-height);
   padding: 0 14px;
   border: 1px solid var(--border);
@@ -52,6 +57,29 @@
 
 .food-text-input:focus {
   border-color: var(--border-focus);
+}
+
+.food-search-btn {
+  height: var(--button-height);
+  padding: 0 20px;
+  border: 1px solid var(--meal-color);
+  border-radius: var(--radius-sm);
+  background: var(--meal-color);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.food-search-btn:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+.food-search-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Dropdown */
