@@ -266,7 +266,80 @@ CSS custom properties on `:root`:
 24. Service worker testing (offline mode)
 25. Empty states, loading states, edge cases
 26. Touch UX polish (haptic feedback considerations, scroll behavior)
-27. Build + deploy to GitHub Pages or Cloudflare Pages
+27. GitHub Actions CI/CD for automated deploy to GitHub Pages
+28. Verify live deployment
+
+---
+
+## CI/CD — GitHub Actions Deploy to GitHub Pages
+
+### Prerequisites
+- Repository pushed to GitHub
+- GitHub Pages enabled in repo Settings → Pages → Source: **GitHub Actions**
+- `vite.config.js` must set `base` to the repo name if not using a custom domain (e.g. `base: '/ibs-tracker/'`)
+
+### Workflow File: `.github/workflows/deploy.yml`
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+### How It Works
+1. On every push to `main`, the workflow triggers automatically
+2. Checks out code, installs Node 22, runs `npm ci` + `npm run build`
+3. Uploads the `dist/` folder as a GitHub Pages artifact
+4. Deploys to `https://<username>.github.io/<repo-name>/`
+
+### Vite Base Path
+If the app is served from a subpath (e.g. `github.io/ibs-tracker/`), add to `vite.config.js`:
+```js
+export default defineConfig({
+  base: '/ibs-tracker/',
+  // ...
+})
+```
+If using a custom domain, keep `base: '/'` (the default).
 
 ---
 
@@ -278,3 +351,4 @@ CSS custom properties on `:root`:
 4. **Export test**: Log several days of data, generate weekly summary, verify it matches EXPORT_FORMAT.md structure
 5. **Data persistence**: Add entries, close browser, reopen — all data intact
 6. **Dark mode**: Toggle theme — all components render correctly in both modes
+7. **CI/CD**: Push to `main` → GitHub Actions builds successfully → site live at GitHub Pages URL

@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npm create:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(export:*)",
+      "Bash([ -s \"$NVM_DIR/nvm.sh\" ])",
+      "Bash(.:*)",
+      "Bash(nvm use:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }
