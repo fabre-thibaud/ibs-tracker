@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods, searchLocalFoods, cacheFood } from '../../utils/usda.js'
+import { searchFoods, searchLocalFoods, cacheFood } from '../../utils/openfoodfacts.js'
 import './FoodInput.css'
 
 const COMMON_FOODS = [
@@ -25,7 +25,7 @@ export default function FoodInput({ label, value = [], onChange }) {
   const [isLocalResults, setIsLocalResults] = useState(false)
   const inputRef = useRef(null)
 
-  // Handle autocomplete search — local cache first, then API
+  // Search local cache as user types (instant, no API call)
   useEffect(() => {
     if (inputValue.length < 2) {
       setSuggestions([])
@@ -34,25 +34,18 @@ export default function FoodInput({ label, value = [], onChange }) {
       return
     }
 
-    // Search local cache first (instant, no debounce)
+    // Search local cache only (instant, no API call)
     const localResults = searchLocalFoods(inputValue)
     if (localResults.length > 0) {
       setSuggestions(localResults)
       setIsLocalResults(true)
       setShowDropdown(true)
-      setLoading(false)
-      return
+    } else {
+      // Show hint to trigger online search
+      setSuggestions([])
+      setIsLocalResults(false)
+      setShowDropdown(false)
     }
-
-    // No local results — fall through to API
-    setIsLocalResults(false)
-    setLoading(true)
-    setShowDropdown(true)
-
-    searchFoods(inputValue).then((results) => {
-      setSuggestions(results)
-      setLoading(false)
-    })
   }, [inputValue])
 
   // Close dropdown when clicking outside
@@ -90,8 +83,12 @@ export default function FoodInput({ label, value = [], onChange }) {
   }
 
   function handleSearchOnline() {
+    if (!inputValue || inputValue.length < 2) return
+
     setIsLocalResults(false)
     setLoading(true)
+    setShowDropdown(true)
+
     searchFoods(inputValue).then((results) => {
       setSuggestions(results)
       setLoading(false)
@@ -101,8 +98,17 @@ export default function FoodInput({ label, value = [], onChange }) {
   function handleKeyDown(e) {
     if (e.key === 'Enter') {
       e.preventDefault()
-      if (inputValue.trim()) {
-        addFood(inputValue)
+
+      // If there are suggestions, use the first one
+      if (suggestions.length > 0) {
+        addFood(suggestions[0].name)
+      } else if (inputValue.trim()) {
+        // No suggestions - trigger online search or add as-is if already searched
+        if (!loading && inputValue.length >= 2) {
+          handleSearchOnline()
+        } else {
+          addFood(inputValue)
+        }
       }
     } else if (e.key === 'Escape') {
       setShowDropdown(false)
@@ -128,25 +134,35 @@ export default function FoodInput({ label, value = [], onChange }) {
         ))}
       </div>
 
-      {/* Input with autocomplete */}
+      {/* Input with search button */}
       <div className="food-input-container" ref={inputRef}>
-        <input
-          type="text"
-          className="food-text-input"
-          placeholder="Add a food or ingredient..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => inputValue.length >= 2 && setShowDropdown(true)}
-        />
+        <div className="food-input-wrapper">
+          <input
+            type="text"
+            className="food-text-input"
+            placeholder="Add a food or ingredient..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => inputValue.length >= 2 && setShowDropdown(true)}
+          />
+          <button
+            type="button"
+            className="food-search-btn"
+            onClick={handleSearchOnline}
+            disabled={inputValue.length < 2}
+          >
+            Search
+          </button>
+        </div>
 
         {/* Dropdown suggestions */}
         {showDropdown && (
           <div className="food-suggestions">
-            {loading && <div className="food-loading">Searching...</div>}
+            {loading && <div className="food-loading">Searching online...</div>}
 
             {!loading && suggestions.length === 0 && inputValue.length >= 2 && (
-              <div className="food-no-results">No results. Press Enter to add "{inputValue}"</div>
+              <div className="food-no-results">No results found. Press Enter to add "{inputValue}" anyway</div>
             )}
 
             {!loading && suggestions.map((food, idx) => {

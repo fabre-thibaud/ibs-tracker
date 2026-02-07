@@ -365,20 +365,25 @@ Replace the free-text `content` textarea in MealForm with a structured food inpu
 
 ### Data Sources
 
-#### Food Search — USDA FoodData Central API
-- **Endpoint**: `GET https://api.nal.usda.gov/fdc/v1/foods/search?api_key={key}&query={q}&dataType=Foundation,SR%20Legacy&pageSize=8`
-- **Auth**: Free API key (sign up at `https://fdc.nal.usda.gov/api-key-signup/`)
-- **Rate limit**: 1,000 requests/hour per IP
-- **CORS**: Confirmed working (`Access-Control-Allow-Origin: *`)
-- **Usage**: Debounce input by 350ms, search on 2+ characters, show top 8 results
-- **API key**: Stored per-user in `localStorage` under `ibs-tracker-settings.usdaApiKey`. Configured via Settings → USDA API Key. If not set, autocomplete gracefully degrades (quick-add and manual entry still work)
+#### Food Search — Open Food Facts API
+- **Endpoint v2**: `GET https://world.openfoodfacts.org/api/v2/search?{params}`
+- **Endpoint v1** (for text search): `GET https://world.openfoodfacts.org/cgi/search.pl?search_terms={query}&search_simple=1&json=1&page_size=8&fields=product_name,product_name_fr`
+- **Auth**: None required, but **MUST** include custom `User-Agent` header: `"ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)"`
+- **Rate limit**: **10 requests/min for search queries** (strictly enforced, IP bans possible)
+- **Search restrictions**: **NO "search-as-you-type"** — API explicitly prohibits this to avoid rate limit bans
+- **CORS**: Supported
+- **Usage**:
+  - Manual trigger only (button or Enter key after user finishes typing)
+  - Show top 8 results
+  - Prefer French product names (`product_name_fr`) with fallback to `product_name`
+- **No API key needed**: Open Food Facts is free and open, no configuration required
 
 #### FODMAP Data — Bundled Static Dataset
 - **Source**: `oseparovic/fodmap_list` on GitHub (384 foods, JSON)
 - **Schema per item**: `{ name, fodmap: "low"|"high", category, details: { oligos, fructose, polyols, lactose } }`
   - `details` values: `0` = low, `1` = moderate, `2` = high
 - **Bundled at build time** as `src/data/fodmap.json` (~15KB)
-- **Matching**: Fuzzy match USDA food names against FODMAP dataset by normalized name
+- **Matching**: Fuzzy match Open Food Facts product names against FODMAP dataset by normalized name
 - **Fallback**: Foods not in the dataset show a neutral grey indicator ("FODMAP unknown")
 
 ### Data Model Change (v1 → v2)
@@ -413,8 +418,8 @@ New component at `src/components/fields/FoodInput.jsx` + `FoodInput.css`.
 
 #### UI Layout (top to bottom)
 1. **Quick-add buttons** — row of pill buttons for common foods (configurable list) + recently used foods (derived from user's history in localStorage)
-2. **Text input** — single-line input with placeholder "Add a food..."
-3. **Suggestion dropdown** — appears below input when typing (2+ chars), shows USDA results with FODMAP dot indicator
+2. **Text input** — single-line input with placeholder "Add a food..." and a "Search" button (or Enter key trigger)
+3. **Suggestion dropdown** — appears when user triggers search (button or Enter), shows Open Food Facts results with FODMAP dot indicator
 4. **Items list** — each added food shown as a chip/tag with name, FODMAP dot, and X remove button
 
 #### Local Food Cache
@@ -423,21 +428,28 @@ Previously selected foods are cached in `localStorage` under key `ibs-tracker-fo
 
 - **Storage**: `localStorage` key `ibs-tracker-food-cache`, array of `{ name }` objects, deduped by normalized name
 - **Population**: Every time user selects a food (from API, quick-add, or manual entry), it's saved to the cache
-- **Search priority**: Local cache is searched first (substring match). If local results are found, they are shown immediately with a "Search online..." button. If no local matches, the USDA API is queried automatically
+- **Search priority**: Local cache is searched first (substring match, instant). If local results are found, they are shown immediately with a "Search online..." button. If no local matches and user triggers search, Open Food Facts API is called
 - **No expiry**: Cache grows over time as the user builds a personal food vocabulary
+- **Rate limit protection**: Local cache prevents unnecessary API calls, respecting Open Food Facts' 10 req/min limit
 
 #### Interaction Flow
 1. User taps a quick-add button → food added to items list immediately + saved to local cache
-2. User types in input → local cache is searched instantly (no debounce needed)
-   - If local results found: shown in dropdown with "Search online..." button at bottom
-   - If no local results: USDA API is called after 350ms debounce (2+ chars)
-3. Suggestion dropdown appears with up to 8 results, each showing:
-   - Food name (from local cache or USDA API)
+2. User types in input → local cache is searched instantly as they type (no API call)
+   - If local results found (2+ chars): shown in dropdown with "Search online..." button at bottom
+   - If no local results: dropdown shows "Press Enter or click Search to find online"
+3. User triggers search (Enter key or Search button):
+   - Local results shown first if available
+   - "Search online..." button OR automatic API call if no local matches
+   - Open Food Facts API called with full input text (respects 10 req/min limit, no debounce spam)
+4. Suggestion dropdown appears with up to 8 results, each showing:
+   - Food name (from local cache or Open Food Facts API, preferring French names)
    - FODMAP dot: green (low), red (high), grey (unknown)
-4. User taps "Search online..." → triggers USDA API call, replaces suggestions with API results
-5. User taps a suggestion → added to items list, saved to local cache, input cleared
-6. User presses Enter on free text → added as-is (FODMAP matched if possible), saved to local cache
-7. Each item chip shows: name + FODMAP dot + X button to remove
+5. User taps "Search online..." → triggers Open Food Facts API call, replaces suggestions with API results
+6. User taps a suggestion → added to items list, saved to local cache, input cleared
+7. User adds free text (Enter without selecting) → added as-is (FODMAP matched if possible), saved to local cache
+8. Each item chip shows: name + FODMAP dot + X button to remove
+
+**Rate limit compliance**: API is only called on explicit user action (Enter/button), never on keystroke. Local cache is searched first to minimize API usage.
 
 #### FODMAP Dot Colors
 - Green (`var(--good)`) — low FODMAP
@@ -451,12 +463,19 @@ src/
   data/
     fodmap.json               # Bundled FODMAP dataset (384 items)
   components/fields/
-    FoodInput.jsx             # Food input component
+    FoodInput.jsx             # Food input component with search button
     FoodInput.css             # Styles
   utils/
     fodmap.js                 # Load dataset, fuzzy match function
-    usda.js                   # USDA API fetch with debounce + cache
+    openfoodfacts.js          # Open Food Facts API with rate limit protection + local cache
 ```
+
+**Changed from USDA to Open Food Facts:**
+- `usda.js` → `openfoodfacts.js`
+- No API key required (removed Settings UI for API key)
+- Custom User-Agent header: `"ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)"`
+- Manual search trigger only (no search-as-you-type)
+- French product names preferred (`product_name_fr` with fallback to `product_name`)
 
 ### Quick-Add Common Foods
 
@@ -481,9 +500,17 @@ Additionally, derive "recent foods" from the user's last 50 meal entries (dedupl
 1. **Create branch** `feature/meal-food-input` from `main`
 2. **Bundle FODMAP data**: Download `fodmap_repo.json`, save as `src/data/fodmap.json`
 3. **Create `utils/fodmap.js`**: Load + index FODMAP data, export `matchFodmap(name)` function (normalize + fuzzy match)
-4. **Create `utils/usda.js`**: `searchFoods(query)` with debounce, caching, and error handling. API key from `localStorage.getItem('ibs-tracker-settings').usdaApiKey`
-5. **Update `Header` settings**: Add "USDA API Key" menu item and modal for configuring API key. Key stored in localStorage per-user
-6. **Create `FoodInput` component**: Input + dropdown + chips + quick-add buttons
+4. **Create `utils/openfoodfacts.js`**:
+   - `searchFoods(query)` with rate limit protection, local cache (`cacheFood`, `searchLocalFoods`)
+   - Custom User-Agent: `"ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)"`
+   - API endpoint: `https://world.openfoodfacts.org/cgi/search.pl?search_terms={query}&search_simple=1&json=1&page_size=8&fields=product_name,product_name_fr`
+   - Prefer `product_name_fr` over `product_name` for French cuisine
+   - No API key needed
+5. **Remove USDA Settings**: Remove "USDA API Key" menu item and modal from `Header` (no longer needed)
+6. **Create `FoodInput` component**: Input + Search button + dropdown + chips + quick-add buttons
+   - Search triggered manually (Enter key or button click), not on keystroke
+   - Local cache searched as user types (instant, no API call)
+   - API only called on explicit search action (respects 10 req/min limit)
 7. **Update `MealForm`**: Replace `<TextArea label="Food Content" ...>` with `<FoodInput ...>`. Write both `content` and `items` on save.
 8. **Update `DayView` meal cards**: Show item chips with FODMAP dots instead of plain text
 9. **Update `migrations.js`**: Add v1→v2 migration (no-op, just version stamp)
