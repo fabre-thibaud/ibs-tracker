@@ -342,6 +342,142 @@ CSS custom properties on `:root`:
 27. GitHub Actions CI/CD for automated deploy to GitHub Pages
 28. Verify live deployment
 
+### Phase 6 — Enhanced Meal Content Input *(branch: `feature/meal-food-input`)*
+29. Bundle FODMAP dataset (`fodmap.json`) + build `FoodInput` component
+30. Integrate USDA FoodData Central API for autocomplete
+31. FODMAP indicator badges on food items
+32. Quick-add buttons for common/recent foods
+33. Update `MealForm` to use `FoodInput`, data migration v1→v2
+34. Update DayView meal cards + export functions for new `items` field
+
+---
+
+## Feature: Enhanced Meal Content Input
+
+### Overview
+
+Replace the free-text `content` textarea in MealForm with a structured food input that supports:
+- One food item per line (chip/tag UI)
+- Autocomplete suggestions from USDA FoodData Central API
+- FODMAP compatibility indicator on each item (green/amber/red dot)
+- Quick-add buttons for common foods and recently used foods
+- Input can be a dish name or individual ingredients
+
+### Data Sources
+
+#### Food Search — USDA FoodData Central API
+- **Endpoint**: `GET https://api.nal.usda.gov/fdc/v1/foods/search?api_key={key}&query={q}&dataType=Foundation,SR%20Legacy&pageSize=8`
+- **Auth**: Free API key (sign up at `https://fdc.nal.usda.gov/api-key-signup/`)
+- **Rate limit**: 1,000 requests/hour per IP
+- **CORS**: Confirmed working (`Access-Control-Allow-Origin: *`)
+- **Usage**: Debounce input by 350ms, search on 2+ characters, show top 8 results
+- **API key**: Stored per-user in `localStorage` under `ibs-tracker-settings.usdaApiKey`. Configured via Settings → USDA API Key. If not set, autocomplete gracefully degrades (quick-add and manual entry still work)
+
+#### FODMAP Data — Bundled Static Dataset
+- **Source**: `oseparovic/fodmap_list` on GitHub (384 foods, JSON)
+- **Schema per item**: `{ name, fodmap: "low"|"high", category, details: { oligos, fructose, polyols, lactose } }`
+  - `details` values: `0` = low, `1` = moderate, `2` = high
+- **Bundled at build time** as `src/data/fodmap.json` (~15KB)
+- **Matching**: Fuzzy match USDA food names against FODMAP dataset by normalized name
+- **Fallback**: Foods not in the dataset show a neutral grey indicator ("FODMAP unknown")
+
+### Data Model Change (v1 → v2)
+
+Add an `items` array field to meal entries alongside the existing `content` string:
+
+```json
+{
+  "id": "m_1707300000000",
+  "time": "12:30",
+  "type": "Lunch",
+  "content": "Chicken, rice, broccoli",
+  "items": [
+    { "name": "Chicken breast", "fodmap": "low" },
+    { "name": "Rice", "fodmap": "low" },
+    { "name": "Broccoli", "fodmap": "high" }
+  ],
+  "portion": "Medium",
+  "highFat": false
+}
+```
+
+**Backwards compatibility** (per migration rules):
+- `items` is optional — old entries without it still render via `content`
+- `content` is always written as a comma-joined fallback of item names
+- Reading code: `entry.items ?? content.split(',')` style fallback
+- Migration v1→v2: no destructive changes, just stamps the version
+
+### Component: `FoodInput`
+
+New component at `src/components/fields/FoodInput.jsx` + `FoodInput.css`.
+
+#### UI Layout (top to bottom)
+1. **Quick-add buttons** — row of pill buttons for common foods (configurable list) + recently used foods (derived from user's history in localStorage)
+2. **Text input** — single-line input with placeholder "Add a food..."
+3. **Suggestion dropdown** — appears below input when typing (2+ chars), shows USDA results with FODMAP dot indicator
+4. **Items list** — each added food shown as a chip/tag with name, FODMAP dot, and X remove button
+
+#### Interaction Flow
+1. User taps a quick-add button → food added to items list immediately
+2. User types in input → after 350ms debounce and 2+ chars, USDA API is called
+3. Suggestion dropdown appears with up to 8 results, each showing:
+   - Food name (from USDA `description`)
+   - FODMAP dot: green (low), red (high), grey (unknown)
+4. User taps a suggestion → added to items list, input cleared, dropdown closes
+5. User presses Enter on free text → added as-is (FODMAP matched if possible)
+6. Each item chip shows: name + FODMAP dot + X button to remove
+
+#### FODMAP Dot Colors
+- Green (`var(--good)`) — low FODMAP
+- Red (`var(--concern)`) — high FODMAP
+- Grey (`var(--text-muted)`) — not in dataset / unknown
+
+### New Files
+
+```
+src/
+  data/
+    fodmap.json               # Bundled FODMAP dataset (384 items)
+  components/fields/
+    FoodInput.jsx             # Food input component
+    FoodInput.css             # Styles
+  utils/
+    fodmap.js                 # Load dataset, fuzzy match function
+    usda.js                   # USDA API fetch with debounce + cache
+```
+
+### Quick-Add Common Foods
+
+Default common foods list (hardcoded, ~20 items covering typical IBS-relevant categories):
+
+```
+Rice, Chicken, Eggs, Bread, Pasta, Potato, Banana, Oats,
+Salmon, Yogurt, Cheese, Tomato, Spinach, Carrot, Apple,
+Onion, Garlic, Avocado, Milk, Butter
+```
+
+Additionally, derive "recent foods" from the user's last 50 meal entries (deduplicated by name, most frequent first, max 10 shown).
+
+### Export Compatibility
+
+- `generateWeeklySummary`: Use `items` names if available, fall back to `content` string
+- `generateCSV`: Same fallback logic — join item names with commas
+- Common foods list in weekly summary: count from `items[].name` when available
+
+### Implementation Steps (Phase 6 detail)
+
+1. **Create branch** `feature/meal-food-input` from `main`
+2. **Bundle FODMAP data**: Download `fodmap_repo.json`, save as `src/data/fodmap.json`
+3. **Create `utils/fodmap.js`**: Load + index FODMAP data, export `matchFodmap(name)` function (normalize + fuzzy match)
+4. **Create `utils/usda.js`**: `searchFoods(query)` with debounce, caching, and error handling. API key from `localStorage.getItem('ibs-tracker-settings').usdaApiKey`
+5. **Update `Header` settings**: Add "USDA API Key" menu item and modal for configuring API key. Key stored in localStorage per-user
+6. **Create `FoodInput` component**: Input + dropdown + chips + quick-add buttons
+7. **Update `MealForm`**: Replace `<TextArea label="Food Content" ...>` with `<FoodInput ...>`. Write both `content` and `items` on save.
+8. **Update `DayView` meal cards**: Show item chips with FODMAP dots instead of plain text
+9. **Update `migrations.js`**: Add v1→v2 migration (no-op, just version stamp)
+10. **Update `export.js`**: Handle `items` array with fallback to `content`
+11. **Test backwards compatibility**: Old data without `items` renders correctly
+
 ---
 
 ## CI/CD — GitHub Actions Deploy to GitHub Pages

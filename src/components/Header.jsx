@@ -9,6 +9,27 @@ export default function Header() {
   const { selectedDate, settings } = state
   const [showCalendar, setShowCalendar] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false)
+  const [apiKey, setApiKey] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ibs-tracker-settings')
+      return saved ? (JSON.parse(saved).usdaApiKey || '') : ''
+    } catch {
+      return ''
+    }
+  })
+
+  function saveApiKey() {
+    try {
+      const saved = localStorage.getItem('ibs-tracker-settings')
+      const settings = saved ? JSON.parse(saved) : {}
+      settings.usdaApiKey = apiKey.trim()
+      localStorage.setItem('ibs-tracker-settings', JSON.stringify(settings))
+      setShowApiKeyModal(false)
+    } catch (error) {
+      console.error('Failed to save API key:', error)
+    }
+  }
 
   return (
     <>
@@ -61,6 +82,15 @@ export default function Header() {
               {settings.theme === 'light' ? 'Dark mode' : 'Light mode'}
             </button>
             <button
+              className="settings-item"
+              onClick={() => {
+                setShowApiKeyModal(true)
+                setShowSettings(false)
+              }}
+            >
+              USDA API Key
+            </button>
+            <button
               className="settings-item settings-item--danger"
               onClick={() => {
                 if (window.confirm('Delete all tracked data? This cannot be undone.')) {
@@ -84,6 +114,44 @@ export default function Header() {
           }}
           onClose={() => setShowCalendar(false)}
         />
+      )}
+
+      {showApiKeyModal && (
+        <div className="modal-overlay" onClick={() => setShowApiKeyModal(false)}>
+          <div className="modal-content api-key-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>USDA API Key</h2>
+              <button className="modal-close" onClick={() => setShowApiKeyModal(false)} aria-label="Close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p style={{ marginBottom: '12px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                Enter your free USDA FoodData Central API key to enable food autocomplete.
+                <br />
+                <a href="https://fdc.nal.usda.gov/api-key-signup/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--meal-color)' }}>
+                  Sign up for a free API key →
+                </a>
+              </p>
+              <input
+                type="text"
+                className="api-key-input"
+                placeholder="Enter your API key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && saveApiKey()}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="button button--secondary" onClick={() => setShowApiKeyModal(false)}>
+                Cancel
+              </button>
+              <button className="button button--primary" onClick={saveApiKey}>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   )

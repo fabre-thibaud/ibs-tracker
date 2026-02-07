@@ -8,7 +8,30 @@ function severityClass(val, max = 10) {
   return 'severity-high'
 }
 
+function FodmapDot({ fodmap }) {
+  const color = fodmap === 'low' ? 'var(--good)'
+    : fodmap === 'high' ? 'var(--concern)'
+    : 'var(--text-muted)'
+
+  return (
+    <span
+      style={{
+        display: 'inline-block',
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        background: color,
+        marginRight: '4px',
+      }}
+      title={fodmap || 'Unknown'}
+    />
+  )
+}
+
 function MealCard({ entry, onClick }) {
+  const items = entry.items || []
+  const hasItems = items.length > 0
+
   return (
     <div className="entry-card entry-card--meal" onClick={onClick}>
       <div className="entry-card-header">
@@ -16,7 +39,19 @@ function MealCard({ entry, onClick }) {
         <span className="entry-card-time">{entry.time}</span>
       </div>
       <div className="entry-card-body">
-        {entry.content || 'No description'}
+        {hasItems ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {items.map((item, idx) => (
+              <span key={idx} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
+                <FodmapDot fodmap={item.fodmap} />
+                {item.name}
+                {idx < items.length - 1 && ','}
+              </span>
+            ))}
+          </div>
+        ) : (
+          entry.content || 'No description'
+        )}
       </div>
       <div className="entry-card-tags">
         {entry.portion && <span className="entry-card-tag">{entry.portion}</span>}

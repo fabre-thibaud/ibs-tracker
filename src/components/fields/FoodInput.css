@@ -1,0 +1,185 @@
+.food-input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Quick-add buttons */
+.food-quick-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.food-quick-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--bg-input);
+  color: var(--text);
+  transition: all 0.15s;
+  min-height: 36px;
+}
+
+.food-quick-btn:active {
+  transform: scale(0.97);
+  background: var(--meal-color);
+  color: white;
+  border-color: var(--meal-color);
+}
+
+/* Input container with dropdown */
+.food-input-container {
+  position: relative;
+}
+
+.food-text-input {
+  width: 100%;
+  height: var(--button-height);
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  font-size: 0.95rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.food-text-input:focus {
+  border-color: var(--border-focus);
+}
+
+/* Dropdown */
+.food-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 10;
+  animation: slideDown 0.15s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.food-suggestion-item {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid var(--border);
+}
+
+.food-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.food-suggestion-item:active {
+  background: var(--bg-input);
+}
+
+.food-suggestion-name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.food-loading {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.food-no-results {
+  padding: 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Items list (chips) */
+.food-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+}
+
+.food-items-empty {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.food-item-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.food-item-name {
+  color: var(--text);
+}
+
+.food-item-remove {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.food-item-remove:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* FODMAP indicator dot */
+.fodmap-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fodmap-dot--low {
+  background: var(--good);
+}
+
+.fodmap-dot--high {
+  background: var(--concern);
+}
+
+.fodmap-dot--unknown {
+  background: var(--text-muted);
+}
