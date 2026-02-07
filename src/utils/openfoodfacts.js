@@ -1,5 +1,6 @@
 const BASE_URL = 'https://world.openfoodfacts.org/cgi/search.pl'
 const LOCAL_CACHE_KEY = 'ibs-tracker-food-cache'
+const STATS_KEY = 'ibs-tracker-food-stats'
 const USER_AGENT = 'ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)'
 
 // --- Local food cache (localStorage, persisted across sessions) ---
@@ -36,6 +37,50 @@ export function searchLocalFoods(query) {
   return getLocalCache()
     .filter((f) => f.name.toLowerCase().includes(normalized))
     .slice(0, 8)
+}
+
+// --- Food statistics (localStorage, frequency tracking) ---
+
+function getFoodStats() {
+  try {
+    const raw = localStorage.getItem(STATS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+/**
+ * Increment the usage count for a food item
+ * @param {string} name - Food name to track
+ */
+export function incrementFoodStat(name) {
+  if (!name || !name.trim()) return
+
+  const stats = getFoodStats()
+  const normalized = name.trim()
+  stats[normalized] = (stats[normalized] || 0) + 1
+
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats))
+  } catch (error) {
+    console.error('Failed to save food stats:', error)
+  }
+}
+
+/**
+ * Get the top N most frequently used foods
+ * @param {number} count - Number of top foods to return (default 10)
+ * @returns {Array<string>} - Array of food names, sorted by frequency
+ */
+export function getTopFoods(count = 10) {
+  const stats = getFoodStats()
+  const sorted = Object.entries(stats)
+    .sort(([, a], [, b]) => b - a) // Sort by count descending
+    .map(([name]) => name)
+    .slice(0, count)
+
+  return sorted
 }
 
 // --- Open Food Facts API search (remote, rate limited) ---
