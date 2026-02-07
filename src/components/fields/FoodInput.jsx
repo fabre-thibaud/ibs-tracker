@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods, searchLocalFoods, cacheFood, incrementFoodStat, getTopFoods } from '../../utils/openfoodfacts.js'
+import { searchFoods, searchLocalFoods, cacheFood, incrementFoodStat, decrementFoodStat, getTopFoods } from '../../utils/openfoodfacts.js'
 import './FoodInput.css'
 
 const FALLBACK_FOODS = [
@@ -102,6 +102,20 @@ export default function FoodInput({ label, value = [], onChange }) {
   }
 
   function removeFood(index) {
+    const foodToRemove = value[index]
+    if (foodToRemove) {
+      decrementFoodStat(foodToRemove.name)
+
+      // Refresh quick-add buttons after removing a food
+      const topFoods = getTopFoods(10)
+      if (topFoods.length >= 10) {
+        setQuickAddFoods(topFoods)
+      } else {
+        const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
+        setQuickAddFoods(combined)
+      }
+    }
+
     onChange(value.filter((_, i) => i !== index))
   }
 

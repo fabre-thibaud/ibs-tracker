@@ -69,6 +69,32 @@ export function incrementFoodStat(name) {
 }
 
 /**
+ * Decrement the usage count for a food item
+ * @param {string} name - Food name to track
+ */
+export function decrementFoodStat(name) {
+  if (!name || !name.trim()) return
+
+  const stats = getFoodStats()
+  const normalized = name.trim()
+
+  if (stats[normalized] && stats[normalized] > 0) {
+    stats[normalized] -= 1
+
+    // Remove from stats if count reaches 0
+    if (stats[normalized] === 0) {
+      delete stats[normalized]
+    }
+
+    try {
+      localStorage.setItem(STATS_KEY, JSON.stringify(stats))
+    } catch (error) {
+      console.error('Failed to save food stats:', error)
+    }
+  }
+}
+
+/**
  * Get the top N most frequently used foods
  * @param {number} count - Number of top foods to return (default 10)
  * @returns {Array<string>} - Array of food names, sorted by frequency
