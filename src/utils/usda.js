@@ -1,4 +1,5 @@
 const BASE_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
+const LOCAL_CACHE_KEY = 'ibs-tracker-food-cache'
 
 /**
  * Get USDA API key from localStorage
@@ -15,7 +16,45 @@ function getApiKey() {
   }
 }
 
-// Cache search results for 5 minutes
+// --- Local food cache (localStorage, persisted across sessions) ---
+
+function getLocalCache() {
+  try {
+    const raw = localStorage.getItem(LOCAL_CACHE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Save a food name to the local cache (deduped by lowercase name)
+ */
+export function cacheFood(name) {
+  if (!name || !name.trim()) return
+  const foods = getLocalCache()
+  const normalized = name.trim().toLowerCase()
+  if (foods.some((f) => f.name.toLowerCase() === normalized)) return
+  foods.push({ name: name.trim() })
+  localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(foods))
+}
+
+/**
+ * Search the local food cache by substring match
+ * @param {string} query - Search query (min 2 characters)
+ * @returns {Array<{name: string}>} - Matching foods from local cache
+ */
+export function searchLocalFoods(query) {
+  if (!query || query.length < 2) return []
+  const normalized = query.toLowerCase().trim()
+  return getLocalCache()
+    .filter((f) => f.name.toLowerCase().includes(normalized))
+    .slice(0, 8)
+}
+
+// --- USDA API search (remote, debounced) ---
+
+// In-memory cache for API results (5 min TTL)
 const cache = new Map()
 const CACHE_TTL = 5 * 60 * 1000
 
@@ -32,12 +71,9 @@ export async function searchFoods(query, debounceMs = 350) {
   if (!query || query.length < 2) return []
 
   const apiKey = getApiKey()
-  if (!apiKey) {
-    // No API key configured - return empty results
-    return []
-  }
+  if (!apiKey) return []
 
-  // Return cached result if available
+  // Return in-memory cached result if available
   const cacheKey = query.toLowerCase().trim()
   const cached = cache.get(cacheKey)
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -69,10 +105,8 @@ export async function searchFoods(query, debounceMs = 350) {
           fdcId: food.fdcId,
         }))
 
-        // Cache results
+        // In-memory cache
         cache.set(cacheKey, { results, timestamp: Date.now() })
-
-        // Limit cache size to 50 entries
         if (cache.size > 50) {
           const firstKey = cache.keys().next().value
           cache.delete(firstKey)

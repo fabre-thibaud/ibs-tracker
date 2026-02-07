@@ -417,15 +417,27 @@ New component at `src/components/fields/FoodInput.jsx` + `FoodInput.css`.
 3. **Suggestion dropdown** — appears below input when typing (2+ chars), shows USDA results with FODMAP dot indicator
 4. **Items list** — each added food shown as a chip/tag with name, FODMAP dot, and X remove button
 
+#### Local Food Cache
+
+Previously selected foods are cached in `localStorage` under key `ibs-tracker-food-cache` (array of `{ name: string }` objects). This avoids unnecessary API calls for foods the user has already used.
+
+- **Storage**: `localStorage` key `ibs-tracker-food-cache`, array of `{ name }` objects, deduped by normalized name
+- **Population**: Every time user selects a food (from API, quick-add, or manual entry), it's saved to the cache
+- **Search priority**: Local cache is searched first (substring match). If local results are found, they are shown immediately with a "Search online..." button. If no local matches, the USDA API is queried automatically
+- **No expiry**: Cache grows over time as the user builds a personal food vocabulary
+
 #### Interaction Flow
-1. User taps a quick-add button → food added to items list immediately
-2. User types in input → after 350ms debounce and 2+ chars, USDA API is called
+1. User taps a quick-add button → food added to items list immediately + saved to local cache
+2. User types in input → local cache is searched instantly (no debounce needed)
+   - If local results found: shown in dropdown with "Search online..." button at bottom
+   - If no local results: USDA API is called after 350ms debounce (2+ chars)
 3. Suggestion dropdown appears with up to 8 results, each showing:
-   - Food name (from USDA `description`)
+   - Food name (from local cache or USDA API)
    - FODMAP dot: green (low), red (high), grey (unknown)
-4. User taps a suggestion → added to items list, input cleared, dropdown closes
-5. User presses Enter on free text → added as-is (FODMAP matched if possible)
-6. Each item chip shows: name + FODMAP dot + X button to remove
+4. User taps "Search online..." → triggers USDA API call, replaces suggestions with API results
+5. User taps a suggestion → added to items list, saved to local cache, input cleared
+6. User presses Enter on free text → added as-is (FODMAP matched if possible), saved to local cache
+7. Each item chip shows: name + FODMAP dot + X button to remove
 
 #### FODMAP Dot Colors
 - Green (`var(--good)`) — low FODMAP
