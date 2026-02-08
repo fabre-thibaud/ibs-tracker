@@ -21,10 +21,18 @@
   transform: scale(0.99);
 }
 
-.entry-card--meal { border-left-color: var(--meal-color); }
-.entry-card--pain { border-left-color: var(--pain-color); }
-.entry-card--bowel { border-left-color: var(--bowel-color); }
-.entry-card--summary { border-left-color: var(--summary-color); }
+.entry-card--meal {
+  border-left-color: var(--meal-color);
+}
+.entry-card--pain {
+  border-left-color: var(--pain-color);
+}
+.entry-card--bowel {
+  border-left-color: var(--bowel-color);
+}
+.entry-card--summary {
+  border-left-color: var(--summary-color);
+}
 
 .entry-card-header {
   display: flex;
@@ -40,10 +48,18 @@
   letter-spacing: 0.04em;
 }
 
-.entry-card--meal .entry-card-type { color: var(--meal-color); }
-.entry-card--pain .entry-card-type { color: var(--pain-color); }
-.entry-card--bowel .entry-card-type { color: var(--bowel-color); }
-.entry-card--summary .entry-card-type { color: var(--summary-color); }
+.entry-card--meal .entry-card-type {
+  color: var(--meal-color);
+}
+.entry-card--pain .entry-card-type {
+  color: var(--pain-color);
+}
+.entry-card--bowel .entry-card-type {
+  color: var(--bowel-color);
+}
+.entry-card--summary .entry-card-type {
+  color: var(--summary-color);
+}
 
 .entry-card-time {
   font-size: 0.8rem;
@@ -172,6 +188,12 @@
   color: white;
 }
 
-.severity-low { background: var(--good); }
-.severity-med { background: var(--caution); }
-.severity-high { background: var(--concern); }
+.severity-low {
+  background: var(--good);
+}
+.severity-med {
+  background: var(--caution);
+}
+.severity-high {
+  background: var(--concern);
+}

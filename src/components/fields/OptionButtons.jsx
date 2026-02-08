@@ -5,7 +5,7 @@ export default function OptionButtons({ label, options, value, onChange }) {
     <div className="field">
       <label className="field-label">{label}</label>
       <div className="option-buttons">
-        {options.map((opt) => (
+        {options.map(opt => (
           <button
             key={opt}
             type="button"

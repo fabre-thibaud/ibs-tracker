@@ -7,7 +7,13 @@ function getSeverityClass(n, max) {
   return 'severity-high'
 }
 
-export default function ScaleSelector({ label, min = 1, max = 10, value, onChange }) {
+export default function ScaleSelector({
+  label,
+  min = 1,
+  max = 10,
+  value,
+  onChange,
+}) {
   const nums = []
   for (let i = min; i <= max; i++) nums.push(i)
 
@@ -15,7 +21,7 @@ export default function ScaleSelector({ label, min = 1, max = 10, value, onChang
     <div className="field">
       <label className="field-label">{label}</label>
       <div className="scale-selector">
-        {nums.map((n) => (
+        {nums.map(n => (
           <button
             key={n}
             type="button"

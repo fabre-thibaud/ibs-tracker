@@ -72,6 +72,7 @@ Single key `ibs-tracker-data` storing a JSON object keyed by date:
 ```
 
 Settings stored separately under key `ibs-tracker-settings`:
+
 ```json
 { "theme": "light" }
 ```
@@ -211,12 +212,14 @@ ibs-tracker/
 ## Component Architecture
 
 ### App Layout
+
 - **Header**: Shows current date ("Today, Feb 7" or "Thursday, Feb 6"), left/right arrows for prev/next day, "Today" pill button, calendar icon to open date picker, settings gear (dark mode toggle + clear data)
 - **Tab content area**: Renders `DayView`, `WeekView`, or `ExportView` based on active tab
 - **Bottom TabBar**: 3 tabs — Day / Week / Export
 - **FAB**: Bottom-right floating button. Tap to expand into 4 mini-buttons (Meal, Pain, Bowel, Summary). Each opens `EntryModal` with the corresponding form.
 
 ### Entry Modal
+
 - Full-screen slide-up overlay
 - Title bar with entry type name + close button
 - Scrollable form content
@@ -224,6 +227,7 @@ ibs-tracker/
 - Also used for editing existing entries (pre-populated fields)
 
 ### Day View
+
 - Chronological timeline of all entries for selected date
 - Each entry is a card showing: icon + type label, time, key details (2-3 lines)
 - Tap a card to edit (re-opens modal with data pre-filled)
@@ -232,11 +236,13 @@ ibs-tracker/
 - Daily summary card pinned at top if exists
 
 ### Week View
+
 - Text-based summary matching EXPORT_FORMAT.md structure
 - Week selector (prev/next week arrows, current week range displayed)
 - Sections: Meals Logged, Pain Episodes, Bowel Movements, Daily Metrics, Observations
 
 ### Export View
+
 - "This Week" / "Custom Range" date selector
 - 3 export buttons: Copy as Text, Download PDF, Download CSV
 - Preview of the text export below the buttons
@@ -276,22 +282,22 @@ CSS custom properties on `:root`:
   --border: #e5e7eb;
 
   /* Entry type colors */
-  --meal-color: #3b82f6;      /* blue */
-  --pain-color: #ef4444;      /* red */
-  --bowel-color: #f59e0b;     /* amber */
-  --summary-color: #8b5cf6;   /* violet */
+  --meal-color: #3b82f6; /* blue */
+  --pain-color: #ef4444; /* red */
+  --bowel-color: #f59e0b; /* amber */
+  --summary-color: #8b5cf6; /* violet */
 
   /* Severity scale */
-  --good: #22c55e;            /* green */
-  --caution: #f59e0b;         /* yellow */
-  --concern: #ef4444;         /* red */
+  --good: #22c55e; /* green */
+  --caution: #f59e0b; /* yellow */
+  --concern: #ef4444; /* red */
 
   /* Touch targets */
   --min-touch: 44px;
   --button-height: 48px;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg: #0f172a;
   --bg-card: #1e293b;
   --text: #f1f5f9;
@@ -305,14 +311,17 @@ CSS custom properties on `:root`:
 ## Implementation Order
 
 ### Phase 1 — Scaffold & Data Layer
+
 1. `npm create vite@latest . -- --template react` + install deps
-2. Set up project structure (folders, empty files)
-3. Implement `DataContext` + `storage.js` + localStorage persistence
-4. Basic `App.jsx` layout with header, tab bar, FAB placeholder
-5. CSS variables + global styles + dark mode toggle
-6. PWA manifest + vite-plugin-pwa config
+2. Set up code style enforcement (ESLint + Prettier + pre-commit hooks)
+3. Set up project structure (folders, empty files)
+4. Implement `DataContext` + `storage.js` + localStorage persistence
+5. Basic `App.jsx` layout with header, tab bar, FAB placeholder
+6. CSS variables + global styles + dark mode toggle
+7. PWA manifest + vite-plugin-pwa config
 
 ### Phase 2 — Entry Forms
+
 7. Reusable field components (`TimeField`, `ScaleSelector`, `OptionButtons`, `Toggle`, `TextArea`)
 8. `EntryModal` slide-up wrapper
 9. `MealForm` — first complete form
@@ -322,6 +331,7 @@ CSS custom properties on `:root`:
 13. FAB with radial menu to launch each form
 
 ### Phase 3 — Day View
+
 14. `DayView` — render entries as cards, chronologically
 15. Entry cards with type-colored left border, time, key info
 16. Tap-to-edit (re-open modal with pre-filled data)
@@ -330,19 +340,22 @@ CSS custom properties on `:root`:
 19. `Calendar` date picker popup
 
 ### Phase 4 — Weekly Summary & Export
+
 20. `WeekView` — aggregate data for 7 days, render text summary
 21. `ExportView` — text/CSV generation + copy/download
 22. PDF export using jsPDF
 23. Pattern detection (nice-to-have): scan for meal→pain correlations
 
 ### Phase 5 — Polish & Deploy
+
 24. Service worker testing (offline mode)
 25. Empty states, loading states, edge cases
 26. Touch UX polish (haptic feedback considerations, scroll behavior)
 27. GitHub Actions CI/CD for automated deploy to GitHub Pages
 28. Verify live deployment
 
-### Phase 6 — Enhanced Meal Content Input *(branch: `feature/meal-food-input`)*
+### Phase 6 — Enhanced Meal Content Input _(branch: `feature/meal-food-input`)_
+
 29. Bundle FODMAP dataset (`fodmap.json`) + build `FoodInput` component
 30. Integrate USDA FoodData Central API for autocomplete
 31. FODMAP indicator badges on food items
@@ -357,6 +370,7 @@ CSS custom properties on `:root`:
 ### Overview
 
 Replace the free-text `content` textarea in MealForm with a structured food input that supports:
+
 - One food item per line (chip/tag UI)
 - Autocomplete suggestions from USDA FoodData Central API
 - FODMAP compatibility indicator on each item (green/amber/red dot)
@@ -379,6 +393,7 @@ Replace the free-text `content` textarea in MealForm with a structured food inpu
 - **No API key needed**: Open Food Facts is free and open, no configuration required
 
 #### FODMAP Data — Bundled Static Dataset
+
 - **Source**: `oseparovic/fodmap_list` on GitHub (384 foods, JSON)
 - **Schema per item**: `{ name, fodmap: "low"|"high", category, details: { oligos, fructose, polyols, lactose } }`
   - `details` values: `0` = low, `1` = moderate, `2` = high
@@ -407,6 +422,7 @@ Add an `items` array field to meal entries alongside the existing `content` stri
 ```
 
 **Backwards compatibility** (per migration rules):
+
 - `items` is optional — old entries without it still render via `content`
 - `content` is always written as a comma-joined fallback of item names
 - Reading code: `entry.items ?? content.split(',')` style fallback
@@ -417,6 +433,7 @@ Add an `items` array field to meal entries alongside the existing `content` stri
 New component at `src/components/fields/FoodInput.jsx` + `FoodInput.css`.
 
 #### UI Layout (top to bottom)
+
 1. **Quick-add buttons** — row of pill buttons for common foods (configurable list) + recently used foods (derived from user's history in localStorage)
 2. **Text input** — single-line input with placeholder "Add a food..." and a "Search" button (or Enter key trigger)
 3. **Suggestion dropdown** — appears when user triggers search (button or Enter), shows Open Food Facts results with FODMAP dot indicator
@@ -433,6 +450,7 @@ Previously selected foods are cached in `localStorage` under key `ibs-tracker-fo
 - **Rate limit protection**: Local cache prevents unnecessary API calls, respecting Open Food Facts' 10 req/min limit
 
 #### Interaction Flow
+
 1. User taps a quick-add button → food added to items list immediately + saved to local cache
 2. User types in input → local cache is searched instantly as they type (no API call)
    - If local results found (2+ chars): shown in dropdown with "Search online..." button at bottom
@@ -452,6 +470,7 @@ Previously selected foods are cached in `localStorage` under key `ibs-tracker-fo
 **Rate limit compliance**: API is only called on explicit user action (Enter/button), never on keystroke. Local cache is searched first to minimize API usage.
 
 #### FODMAP Dot Colors
+
 - Green (`var(--good)`) — low FODMAP
 - Red (`var(--concern)`) — high FODMAP
 - Grey (`var(--text-muted)`) — not in dataset / unknown
@@ -539,6 +558,7 @@ Quick-add buttons are **dynamically generated from user's meal history**, showin
 ## CI/CD — GitHub Actions Deploy to GitHub Pages
 
 ### Prerequisites
+
 - Repository pushed to GitHub
 - GitHub Pages enabled in repo Settings → Pages → Source: **GitHub Actions**
 - `vite.config.js` must set `base` to the repo name if not using a custom domain (e.g. `base: '/ibs-tracker/'`)
@@ -563,7 +583,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
   build-and-deploy:
+    needs: lint
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -591,29 +630,248 @@ jobs:
 ```
 
 ### How It Works
+
 1. On every push to `main`, the workflow triggers automatically
-2. Checks out code, installs Node 22, runs `npm ci` + `npm run build`
-3. Uploads the `dist/` folder as a GitHub Pages artifact
-4. Deploys to `https://<username>.github.io/<repo-name>/`
+2. **Lint job** runs first: checks out code, installs Node 22, runs `npm run lint` and `npm run format:check`
+3. If linting passes, **build-and-deploy job** runs: checks out code, runs `npm ci` + `npm run build`
+4. Uploads the `dist/` folder as a GitHub Pages artifact
+5. Deploys to `https://<username>.github.io/<repo-name>/`
+
+If linting or formatting checks fail, the build is aborted and deployment does not occur.
 
 ### Vite Base Path
+
 If the app is served from a subpath (e.g. `github.io/ibs-tracker/`), add to `vite.config.js`:
+
 ```js
 export default defineConfig({
   base: '/ibs-tracker/',
   // ...
 })
 ```
+
 If using a custom domain, keep `base: '/'` (the default).
+
+---
+
+## Code Style & Quality Enforcement
+
+### Goals
+
+- **Consistent code style**: All code follows the same formatting rules
+- **Catch common errors**: ESLint identifies potential bugs and anti-patterns
+- **Automatic formatting**: Prettier formats code on save and pre-commit
+- **CI enforcement**: GitHub Actions fails builds with linting/formatting errors
+
+### Tools
+
+#### ESLint — Code Quality & Standards
+
+Linter for JavaScript/JSX with React-specific rules.
+
+**Config**: `eslint.config.js` (flat config format, ESLint 9+)
+
+**Presets**:
+
+- `@eslint/js` — Core JavaScript rules
+- `eslint-plugin-react` — React-specific linting (hooks rules, JSX a11y)
+- `eslint-plugin-react-hooks` — Enforce rules of hooks
+- `eslint-plugin-react-refresh` — Vite HMR best practices
+
+**Key rules**:
+
+- Enforce `const`/`let` over `var`
+- Warn on unused variables (except prefixed with `_`)
+- Require prop-types or TypeScript (if not using TS, disable prop-types rule)
+- No console.log in production builds (warn in dev)
+
+#### Prettier — Code Formatting
+
+Opinionated code formatter for consistent style.
+
+**Config**: `.prettierrc.json`
+
+**Settings**:
+
+```json
+{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "tabWidth": 2,
+  "arrowParens": "avoid"
+}
+```
+
+**Ignore file**: `.prettierignore` (exclude `dist/`, `node_modules/`, `.github/`)
+
+#### Integration — Avoid ESLint/Prettier Conflicts
+
+Install `eslint-config-prettier` to disable ESLint formatting rules that conflict with Prettier. This ensures ESLint only handles code quality, Prettier handles formatting.
+
+#### Pre-commit Hooks — Enforce Checks Before Commit
+
+Use **husky** + **lint-staged** to run checks on staged files before every commit.
+
+**Installation**:
+
+```bash
+npm install --save-dev husky lint-staged
+npx husky init
+```
+
+**`.husky/pre-commit`**:
+
+```bash
+#!/usr/bin/env sh
+npx lint-staged
+```
+
+**`package.json` config**:
+
+```json
+{
+  "lint-staged": {
+    "*.{js,jsx}": ["eslint --fix", "prettier --write"],
+    "*.{css,md,json}": ["prettier --write"]
+  }
+}
+```
+
+This automatically runs ESLint + Prettier on staged files. If errors are found, the commit is blocked until fixed.
+
+### Package.json Scripts
+
+Add these scripts for manual checks and CI:
+
+```json
+{
+  "scripts": {
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext js,jsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css,json}\""
+  }
+}
+```
+
+- `npm run lint` — Check for linting errors (used in CI)
+- `npm run lint:fix` — Auto-fix linting errors
+- `npm run format` — Format all files with Prettier
+- `npm run format:check` — Check if files are formatted (used in CI)
+
+### CI — GitHub Actions Linting Step
+
+Add a linting job to `.github/workflows/deploy.yml` that runs **before** the build step:
+
+```yaml
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+
+  build-and-deploy:
+    needs: lint # Only deploy if linting passes
+    runs-on: ubuntu-latest
+    # ... rest of build job
+```
+
+This ensures code pushed to `main` is always linted and formatted. Builds fail if checks don't pass.
+
+### Editor Integration
+
+**VSCode** (recommended for this project):
+
+Create `.vscode/settings.json`:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "javascriptreact"]
+}
+```
+
+**Required extensions**:
+
+- ESLint (`dbaeumer.vscode-eslint`)
+- Prettier (`esbenp.prettier-vscode`)
+
+This auto-formats on save and runs ESLint fixes automatically.
+
+### Installation Checklist
+
+1. Install dev dependencies:
+
+   ```bash
+   npm install --save-dev \
+     eslint \
+     @eslint/js \
+     eslint-plugin-react \
+     eslint-plugin-react-hooks \
+     eslint-plugin-react-refresh \
+     eslint-config-prettier \
+     prettier \
+     husky \
+     lint-staged
+   ```
+
+2. Initialize husky:
+
+   ```bash
+   npx husky init
+   echo "npx lint-staged" > .husky/pre-commit
+   chmod +x .husky/pre-commit
+   ```
+
+3. Create config files:
+   - `eslint.config.js` (ESLint flat config)
+   - `.prettierrc.json` (Prettier options)
+   - `.prettierignore` (Exclude build artifacts)
+   - `.vscode/settings.json` (Editor integration)
+
+4. Add `lint-staged` config to `package.json`
+
+5. Add lint scripts to `package.json`
+
+6. Update `.github/workflows/deploy.yml` with lint job
+
+7. Run initial format:
+   ```bash
+   npm run format
+   git add .
+   git commit -m "chore: Set up ESLint, Prettier, and pre-commit hooks"
+   ```
+
+### Ongoing Usage
+
+- **During development**: ESLint + Prettier run automatically on save (VSCode) and on commit (husky)
+- **Manual checks**: `npm run lint` and `npm run format:check`
+- **Auto-fix**: `npm run lint:fix` and `npm run format`
+- **CI enforcement**: Every push to `main` runs linting checks before deployment
 
 ---
 
 ## Verification
 
-1. **Dev server**: `npm run dev` — app loads, forms work, data persists on refresh
-2. **Offline test**: Build (`npm run build`), serve (`npx serve dist`), toggle airplane mode in DevTools — app still works
-3. **Mobile test**: Open on phone (or Chrome DevTools mobile emulation) — touch targets are large enough, forms are usable, FAB works
-4. **Export test**: Log several days of data, generate weekly summary, verify it matches EXPORT_FORMAT.md structure
-5. **Data persistence**: Add entries, close browser, reopen — all data intact
-6. **Dark mode**: Toggle theme — all components render correctly in both modes
-7. **CI/CD**: Push to `main` → GitHub Actions builds successfully → site live at GitHub Pages URL
+1. **Code quality**: Run `npm run lint` and `npm run format:check` — no errors reported
+2. **Pre-commit hook**: Make a change, stage it, commit — husky runs lint-staged, auto-fixes issues
+3. **Dev server**: `npm run dev` — app loads, forms work, data persists on refresh
+4. **Offline test**: Build (`npm run build`), serve (`npx serve dist`), toggle airplane mode in DevTools — app still works
+5. **Mobile test**: Open on phone (or Chrome DevTools mobile emulation) — touch targets are large enough, forms are usable, FAB works
+6. **Export test**: Log several days of data, generate weekly summary, verify it matches EXPORT_FORMAT.md structure
+7. **Data persistence**: Add entries, close browser, reopen — all data intact
+8. **Dark mode**: Toggle theme — all components render correctly in both modes
+9. **CI/CD**: Push to `main` → GitHub Actions lint job passes → build succeeds → site live at GitHub Pages URL

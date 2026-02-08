@@ -1,20 +1,49 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods, searchLocalFoods, cacheFood, incrementFoodStat, decrementFoodStat, getTopFoods } from '../../utils/openfoodfacts.js'
+import {
+  searchFoods,
+  searchLocalFoods,
+  cacheFood,
+  incrementFoodStat,
+  decrementFoodStat,
+  getTopFoods,
+} from '../../utils/openfoodfacts.js'
 import './FoodInput.css'
 
 const FALLBACK_FOODS = [
-  'Rice', 'Chicken', 'Eggs', 'Bread', 'Pasta', 'Potato', 'Banana', 'Oats',
-  'Salmon', 'Yogurt', 'Cheese', 'Tomato', 'Spinach', 'Carrot', 'Apple',
-  'Onion', 'Garlic', 'Avocado', 'Milk', 'Butter'
+  'Rice',
+  'Chicken',
+  'Eggs',
+  'Bread',
+  'Pasta',
+  'Potato',
+  'Banana',
+  'Oats',
+  'Salmon',
+  'Yogurt',
+  'Cheese',
+  'Tomato',
+  'Spinach',
+  'Carrot',
+  'Apple',
+  'Onion',
+  'Garlic',
+  'Avocado',
+  'Milk',
+  'Butter',
 ]
 
 function FodmapDot({ fodmap }) {
-  const className = fodmap === 'low' ? 'fodmap-dot--low'
-    : fodmap === 'high' ? 'fodmap-dot--high'
-    : 'fodmap-dot--unknown'
+  const className =
+    fodmap === 'low'
+      ? 'fodmap-dot--low'
+      : fodmap === 'high'
+        ? 'fodmap-dot--high'
+        : 'fodmap-dot--unknown'
 
-  return <span className={`fodmap-dot ${className}`} title={fodmap || 'Unknown'} />
+  return (
+    <span className={`fodmap-dot ${className}`} title={fodmap || 'Unknown'} />
+  )
 }
 
 export default function FoodInput({ label, value = [], onChange }) {
@@ -79,7 +108,9 @@ export default function FoodInput({ label, value = [], onChange }) {
     const newItem = { name: foodName.trim(), fodmap: fodmap || 'unknown' }
 
     // Avoid duplicates
-    if (value.some((item) => item.name.toLowerCase() === newItem.name.toLowerCase())) {
+    if (
+      value.some(item => item.name.toLowerCase() === newItem.name.toLowerCase())
+    ) {
       return
     }
 
@@ -126,7 +157,7 @@ export default function FoodInput({ label, value = [], onChange }) {
     setLoading(true)
     setShowDropdown(true)
 
-    searchFoods(inputValue).then((results) => {
+    searchFoods(inputValue).then(results => {
       setSuggestions(results)
       setLoading(false)
     })
@@ -159,7 +190,7 @@ export default function FoodInput({ label, value = [], onChange }) {
 
       {/* Quick-add buttons */}
       <div className="food-quick-add">
-        {quickAddFoods.map((food) => (
+        {quickAddFoods.map(food => (
           <button
             key={food}
             type="button"
@@ -179,7 +210,7 @@ export default function FoodInput({ label, value = [], onChange }) {
             className="food-text-input"
             placeholder="Add a food or ingredient..."
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => inputValue.length >= 2 && setShowDropdown(true)}
           />
@@ -199,22 +230,25 @@ export default function FoodInput({ label, value = [], onChange }) {
             {loading && <div className="food-loading">Searching online...</div>}
 
             {!loading && suggestions.length === 0 && inputValue.length >= 2 && (
-              <div className="food-no-results">No results found. Press Enter to add "{inputValue}" anyway</div>
+              <div className="food-no-results">
+                No results found. Press Enter to add "{inputValue}" anyway
+              </div>
             )}
 
-            {!loading && suggestions.map((food, idx) => {
-              const { fodmap } = matchFodmap(food.name)
-              return (
-                <div
-                  key={idx}
-                  className="food-suggestion-item"
-                  onClick={() => addFood(food.name)}
-                >
-                  <FodmapDot fodmap={fodmap} />
-                  <span className="food-suggestion-name">{food.name}</span>
-                </div>
-              )
-            })}
+            {!loading &&
+              suggestions.map((food, idx) => {
+                const { fodmap } = matchFodmap(food.name)
+                return (
+                  <div
+                    key={idx}
+                    className="food-suggestion-item"
+                    onClick={() => addFood(food.name)}
+                  >
+                    <FodmapDot fodmap={fodmap} />
+                    <span className="food-suggestion-name">{food.name}</span>
+                  </div>
+                )
+              })}
 
             {!loading && isLocalResults && (
               <button
@@ -245,9 +279,18 @@ export default function FoodInput({ label, value = [], onChange }) {
               onClick={() => removeFood(idx)}
               aria-label={`Remove ${item.name}`}
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
           </div>

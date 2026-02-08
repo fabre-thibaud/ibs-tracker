@@ -1,6 +1,40 @@
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const DAYS = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+]
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+const SHORT_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
 
 export function toDateKey(date) {
   const d = date instanceof Date ? date : new Date(date)
@@ -82,7 +116,11 @@ export function getCalendarMonth(year, month) {
   const startOffset = (firstDay.getDay() + 6) % 7 // Monday = 0
   const days = []
 
-  for (let i = -startOffset; i < lastDay.getDate() + (6 - ((lastDay.getDay() + 6) % 7)); i++) {
+  for (
+    let i = -startOffset;
+    i < lastDay.getDate() + (6 - ((lastDay.getDay() + 6) % 7));
+    i++
+  ) {
     const d = new Date(year, month, i + 1)
     days.push(toDateKey(d))
   }

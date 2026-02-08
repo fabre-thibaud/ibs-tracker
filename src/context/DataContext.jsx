@@ -1,5 +1,11 @@
 import { createContext, useContext, useReducer, useEffect } from 'react'
-import { loadData, saveData, loadSettings, saveSettings, clearAllData } from '../utils/storage.js'
+import {
+  loadData,
+  saveData,
+  loadSettings,
+  saveSettings,
+  clearAllData,
+} from '../utils/storage.js'
 import { toDateKey } from '../utils/dates.js'
 
 const DataContext = createContext(null)
@@ -34,7 +40,9 @@ function reducer(state, action) {
           ...state.data,
           [date]: {
             ...day,
-            [entryType]: day[entryType].map((e) => (e.id === entryId ? entry : e)),
+            [entryType]: day[entryType].map(e =>
+              e.id === entryId ? entry : e
+            ),
           },
         },
       }
@@ -49,7 +57,7 @@ function reducer(state, action) {
           ...state.data,
           [date]: {
             ...day,
-            [entryType]: day[entryType].filter((e) => e.id !== entryId),
+            [entryType]: day[entryType].filter(e => e.id !== entryId),
           },
         },
       }
@@ -119,7 +127,10 @@ export function DataProvider({ children }) {
       dispatch({ type: 'SET_ACTIVE_TAB', tab })
     },
     toggleTheme() {
-      dispatch({ type: 'SET_THEME', theme: state.settings.theme === 'light' ? 'dark' : 'light' })
+      dispatch({
+        type: 'SET_THEME',
+        theme: state.settings.theme === 'light' ? 'dark' : 'light',
+      })
     },
     clearAll() {
       clearAllData()
@@ -137,6 +148,7 @@ export function DataProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useData() {
   const context = useContext(DataContext)
   if (!context) throw new Error('useData must be used within DataProvider')

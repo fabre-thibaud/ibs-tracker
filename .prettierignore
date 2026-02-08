@@ -1,0 +1,20 @@
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# CI/CD
+.github/
+
+# Generated files
+*.log
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+.DS_Store

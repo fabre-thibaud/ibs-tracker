@@ -9,9 +9,12 @@ function severityClass(val, max = 10) {
 }
 
 function FodmapDot({ fodmap }) {
-  const color = fodmap === 'low' ? 'var(--good)'
-    : fodmap === 'high' ? 'var(--concern)'
-    : 'var(--text-muted)'
+  const color =
+    fodmap === 'low'
+      ? 'var(--good)'
+      : fodmap === 'high'
+        ? 'var(--concern)'
+        : 'var(--text-muted)'
 
   return (
     <span
@@ -42,7 +45,14 @@ function MealCard({ entry, onClick }) {
         {hasItems ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
             {items.map((item, idx) => (
-              <span key={idx} style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
+              <span
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '0.9rem',
+                }}
+              >
                 <FodmapDot fodmap={item.fodmap} />
                 {item.name}
                 {idx < items.length - 1 && ','}
@@ -54,8 +64,12 @@ function MealCard({ entry, onClick }) {
         )}
       </div>
       <div className="entry-card-tags">
-        {entry.portion && <span className="entry-card-tag">{entry.portion}</span>}
-        {entry.highFat && <span className="entry-card-tag entry-card-tag--alert">High Fat</span>}
+        {entry.portion && (
+          <span className="entry-card-tag">{entry.portion}</span>
+        )}
+        {entry.highFat && (
+          <span className="entry-card-tag entry-card-tag--alert">High Fat</span>
+        )}
       </div>
     </div>
   )
@@ -80,30 +94,44 @@ function PainCard({ entry, onClick }) {
         )}
       </div>
       <div className="entry-card-tags">
-        {entry.character && <span className="entry-card-tag">{entry.character}</span>}
-        {entry.duration && <span className="entry-card-tag">{entry.duration} min</span>}
+        {entry.character && (
+          <span className="entry-card-tag">{entry.character}</span>
+        )}
+        {entry.duration && (
+          <span className="entry-card-tag">{entry.duration} min</span>
+        )}
       </div>
     </div>
   )
 }
 
 function BowelCard({ entry, onClick }) {
-  const bristolLabel = entry.bristolType ? `Bristol Type ${entry.bristolType}` : 'Bowel Movement'
+  const bristolLabel = entry.bristolType
+    ? `Bristol Type ${entry.bristolType}`
+    : 'Bowel Movement'
   return (
     <div className="entry-card entry-card--bowel" onClick={onClick}>
       <div className="entry-card-header">
         <span className="entry-card-type">{bristolLabel}</span>
         <span className="entry-card-time">{entry.time}</span>
       </div>
-      <div className="entry-card-body">
-        {entry.color || 'No color noted'}
-      </div>
+      <div className="entry-card-body">{entry.color || 'No color noted'}</div>
       <div className="entry-card-tags">
-        {entry.blood && <span className="entry-card-tag entry-card-tag--alert">Blood</span>}
-        {entry.mucus && <span className="entry-card-tag entry-card-tag--alert">Mucus</span>}
-        {entry.urgency && <span className="entry-card-tag entry-card-tag--alert">Urgent</span>}
-        {entry.completeEvacuation === true && <span className="entry-card-tag entry-card-tag--good">Complete</span>}
-        {entry.completeEvacuation === false && <span className="entry-card-tag">Incomplete</span>}
+        {entry.blood && (
+          <span className="entry-card-tag entry-card-tag--alert">Blood</span>
+        )}
+        {entry.mucus && (
+          <span className="entry-card-tag entry-card-tag--alert">Mucus</span>
+        )}
+        {entry.urgency && (
+          <span className="entry-card-tag entry-card-tag--alert">Urgent</span>
+        )}
+        {entry.completeEvacuation === true && (
+          <span className="entry-card-tag entry-card-tag--good">Complete</span>
+        )}
+        {entry.completeEvacuation === false && (
+          <span className="entry-card-tag">Incomplete</span>
+        )}
       </div>
     </div>
   )
@@ -139,9 +167,7 @@ function SummaryCard({ summary, onClick }) {
           </div>
         )}
       </div>
-      {summary.notes && (
-        <div className="summary-notes">"{summary.notes}"</div>
-      )}
+      {summary.notes && <div className="summary-notes">"{summary.notes}"</div>}
     </div>
   )
 }
@@ -152,9 +178,9 @@ export default function DayView({ onEditEntry }) {
 
   // Merge all timed entries and sort chronologically
   const timedEntries = [
-    ...dayData.meals.map((e) => ({ ...e, entryType: 'meal' })),
-    ...dayData.pain.map((e) => ({ ...e, entryType: 'pain' })),
-    ...dayData.bowel.map((e) => ({ ...e, entryType: 'bowel' })),
+    ...dayData.meals.map(e => ({ ...e, entryType: 'meal' })),
+    ...dayData.pain.map(e => ({ ...e, entryType: 'pain' })),
+    ...dayData.bowel.map(e => ({ ...e, entryType: 'bowel' })),
   ].sort((a, b) => (a.time || '').localeCompare(b.time || ''))
 
   const isEmpty = timedEntries.length === 0 && !dayData.summary
@@ -168,15 +194,32 @@ export default function DayView({ onEditEntry }) {
         />
       )}
 
-      {timedEntries.map((entry) => {
-        const mapType = { meal: 'meals', pain: 'pain', bowel: 'bowel' }
+      {timedEntries.map(entry => {
         switch (entry.entryType) {
           case 'meal':
-            return <MealCard key={entry.id} entry={entry} onClick={() => onEditEntry('meal', entry)} />
+            return (
+              <MealCard
+                key={entry.id}
+                entry={entry}
+                onClick={() => onEditEntry('meal', entry)}
+              />
+            )
           case 'pain':
-            return <PainCard key={entry.id} entry={entry} onClick={() => onEditEntry('pain', entry)} />
+            return (
+              <PainCard
+                key={entry.id}
+                entry={entry}
+                onClick={() => onEditEntry('pain', entry)}
+              />
+            )
           case 'bowel':
-            return <BowelCard key={entry.id} entry={entry} onClick={() => onEditEntry('bowel', entry)} />
+            return (
+              <BowelCard
+                key={entry.id}
+                entry={entry}
+                onClick={() => onEditEntry('bowel', entry)}
+              />
+            )
           default:
             return null
         }
@@ -185,15 +228,27 @@ export default function DayView({ onEditEntry }) {
       {isEmpty && (
         <div className="empty-state">
           <div className="empty-state-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ opacity: 0.4 }}
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </div>
           <div className="empty-state-title">No entries yet</div>
-          <div className="empty-state-desc">Tap + to log a meal, symptom, or summary</div>
+          <div className="empty-state-desc">
+            Tap + to log a meal, symptom, or summary
+          </div>
         </div>
       )}
     </div>

@@ -7,7 +7,7 @@ export default function TextArea({ label, value, onChange, placeholder }) {
       <textarea
         className="text-area"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={3}
       />

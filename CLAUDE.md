@@ -12,12 +12,16 @@ Personal IBS/digestive health tracking PWA. Single-user, no backend, no auth. Al
 # Node 22 required (.nvmrc) — system default may be older
 nvm use 22
 
-npm run dev       # Vite dev server
-npm run build     # Production build → dist/
-npm run preview   # Serve built dist/ locally
+npm run dev          # Vite dev server
+npm run build        # Production build → dist/
+npm run preview      # Serve built dist/ locally
+npm run lint         # Run ESLint checks
+npm run lint:fix     # Auto-fix ESLint errors
+npm run format       # Format all files with Prettier
+npm run format:check # Check Prettier formatting (CI)
 ```
 
-No test framework is configured. No linter is configured.
+**Code quality**: ESLint + Prettier configured. Pre-commit hooks (husky + lint-staged) auto-format and lint staged files before commits. No test framework is configured.
 
 ## Architecture
 
@@ -57,9 +61,12 @@ Configured in `vite.config.js` via `vite-plugin-pwa`. Base path is `/ibs-tracker
 
 ## Key Conventions
 
-- Reusable form fields in `src/components/fields/` (TimeField, ScaleSelector, OptionButtons, Toggle, TextArea, FoodInput).
-- Each form type (Meal, Pain, Bowel, Summary) is in `src/forms/`.
-- Views (DayView, WeekView, ExportView) are in `src/views/`.
+- **Commits**: Use conventional commits 1.0 format for commit messages
+- **Code style**: ESLint flat config (`eslint.config.js`) + Prettier (`.prettierrc.json`). Code is auto-formatted on save (VSCode) and pre-commit (husky). No semicolons, single quotes, trailing commas (ES5), 80-char line width.
+- **File organization**:
+  - Reusable form fields in `src/components/fields/` (TimeField, ScaleSelector, OptionButtons, Toggle, TextArea, FoodInput)
+  - Each form type (Meal, Pain, Bowel, Summary) is in `src/forms/`
+  - Views (DayView, WeekView, ExportView) are in `src/views/`
 - Date utilities in `src/utils/dates.js` — dates are always stored as `YYYY-MM-DD` strings via `toDateKey()`.
 - FODMAP data is a static JSON dataset at `src/data/fodmap.json` matched via `src/utils/fodmap.js`.
 - Export format spec is in `EXPORT_FORMAT.md`.
