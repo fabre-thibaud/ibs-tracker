@@ -11,7 +11,7 @@ import { toDateKey } from '../utils/dates.js'
 const DataContext = createContext(null)
 
 function getEmptyDay() {
-  return { meals: [], pain: [], bowel: [], summary: null }
+  return { meals: [], pain: [], bowel: [], beverages: [], summary: null }
 }
 
 function reducer(state, action) {

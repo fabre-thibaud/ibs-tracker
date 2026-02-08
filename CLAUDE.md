@@ -33,19 +33,19 @@ Access state and actions anywhere via the `useData()` hook.
 
 ### Data Model
 
-- **Main data**: localStorage key `ibs-tracker-data` — JSON object keyed by date `YYYY-MM-DD`, each containing `{ meals[], pain[], bowel[], summary }`.
+- **Main data**: localStorage key `ibs-tracker-data` — JSON object keyed by date `YYYY-MM-DD`, each containing `{ meals[], pain[], bowel[], beverages[], summary }`.
 - **Settings**: localStorage key `ibs-tracker-settings` — `{ theme: "light" | "dark" }`.
 - **Food cache**: localStorage key `ibs-tracker-food-cache` — previously searched food names for instant local autocomplete.
 - **Food stats**: localStorage key `ibs-tracker-food-stats` — `{ [foodName]: count }` for frequency-based quick-add buttons.
-- Entry IDs are timestamp-based with type prefix: `m_`, `p_`, `b_`.
+- Entry IDs are timestamp-based with type prefix: `m_` (meal), `p_` (pain), `b_` (bowel), `d_` (beverage/drink).
 
 ### Data Migrations
 
-`src/utils/migrations.js` — versioned migration system. Current version is 2. When adding schema changes, add a migration function to the `migrations` array and bump `CURRENT_VERSION`. Old data is migrated on load.
+`src/utils/migrations.js` — versioned migration system. Current version is 3. When adding schema changes, add a migration function to the `migrations` array and bump `CURRENT_VERSION`. Old data is migrated on load.
 
 ### Navigation
 
-No router. Three tabs (Day/Week/Export) managed via `activeTab` in state. Forms open in full-screen slide-up modals (`EntryModal`). FAB with radial menu launches the 4 form types (Meal, Pain, Bowel, Summary).
+No router. Three tabs (Day/Week/Export) managed via `activeTab` in state. Forms open in full-screen slide-up modals (`EntryModal`). FAB with radial menu launches the 5 form types (Meal, Beverage, Pain, Bowel, Summary).
 
 ### Food Search
 
@@ -53,7 +53,7 @@ No router. Three tabs (Day/Week/Export) managed via `activeTab` in state. Forms 
 
 ### Styling
 
-Plain CSS with custom properties defined in `src/App.css`. No CSS framework. Dark mode via `[data-theme="dark"]` on `<html>`. Design tokens cover entry type colors (meal=blue, pain=red, bowel=amber, summary=violet), severity scale (good=green, caution=yellow, concern=red), and touch targets (`--min-touch: 44px`). Safe area insets handled for PWA.
+Plain CSS with custom properties defined in `src/App.css`. No CSS framework. Dark mode via `[data-theme="dark"]` on `<html>`. Design tokens cover entry type colors (meal=blue, beverage=teal, pain=red, bowel=amber, summary=violet), severity scale (good=green, caution=yellow, concern=red), and touch targets (`--min-touch: 44px`). Safe area insets handled for PWA.
 
 ### PWA
 
@@ -65,7 +65,7 @@ Configured in `vite.config.js` via `vite-plugin-pwa`. Base path is `/ibs-tracker
 - **Code style**: ESLint flat config (`eslint.config.js`) + Prettier (`.prettierrc.json`). Code is auto-formatted on save (VSCode) and pre-commit (husky). No semicolons, single quotes, trailing commas (ES5), 80-char line width.
 - **File organization**:
   - Reusable form fields in `src/components/fields/` (TimeField, ScaleSelector, OptionButtons, Toggle, TextArea, FoodInput)
-  - Each form type (Meal, Pain, Bowel, Summary) is in `src/forms/`
+  - Each form type (Meal, Beverage, Pain, Bowel, Summary) is in `src/forms/`
   - Views (DayView, WeekView, ExportView) are in `src/views/`
 - Date utilities in `src/utils/dates.js` — dates are always stored as `YYYY-MM-DD` strings via `toDateKey()`.
 - FODMAP data is a static JSON dataset at `src/data/fodmap.json` matched via `src/utils/fodmap.js`.

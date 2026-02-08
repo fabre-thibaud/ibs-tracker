@@ -137,6 +137,55 @@ function BowelCard({ entry, onClick }) {
   )
 }
 
+function BeverageCard({ entry, onClick }) {
+  const items = entry.items || []
+  const hasItems = items.length > 0
+
+  return (
+    <div className="entry-card entry-card--beverage" onClick={onClick}>
+      <div className="entry-card-header">
+        <span className="entry-card-type">Beverage</span>
+        <span className="entry-card-time">{entry.time}</span>
+      </div>
+      <div className="entry-card-body">
+        {hasItems ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {items.map((item, idx) => (
+              <span
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '0.9rem',
+                }}
+              >
+                <FodmapDot fodmap={item.fodmap} />
+                {item.name}
+                {idx < items.length - 1 && ','}
+              </span>
+            ))}
+          </div>
+        ) : (
+          entry.content || 'No description'
+        )}
+      </div>
+      <div className="entry-card-tags">
+        {entry.volume && <span className="entry-card-tag">{entry.volume}</span>}
+        {entry.temperature && (
+          <span className="entry-card-tag">{entry.temperature}</span>
+        )}
+        {entry.caffeine && (
+          <span className="entry-card-tag entry-card-tag--alert">Caffeine</span>
+        )}
+        {entry.alcohol && (
+          <span className="entry-card-tag entry-card-tag--alert">Alcohol</span>
+        )}
+        {entry.carbonated && <span className="entry-card-tag">Carbonated</span>}
+      </div>
+    </div>
+  )
+}
+
 function SummaryCard({ summary, onClick }) {
   return (
     <div className="summary-card" onClick={onClick}>
@@ -181,6 +230,7 @@ export default function DayView({ onEditEntry }) {
     ...dayData.meals.map(e => ({ ...e, entryType: 'meal' })),
     ...dayData.pain.map(e => ({ ...e, entryType: 'pain' })),
     ...dayData.bowel.map(e => ({ ...e, entryType: 'bowel' })),
+    ...(dayData.beverages || []).map(e => ({ ...e, entryType: 'beverage' })),
   ].sort((a, b) => (a.time || '').localeCompare(b.time || ''))
 
   const isEmpty = timedEntries.length === 0 && !dayData.summary
@@ -218,6 +268,14 @@ export default function DayView({ onEditEntry }) {
                 key={entry.id}
                 entry={entry}
                 onClick={() => onEditEntry('bowel', entry)}
+              />
+            )
+          case 'beverage':
+            return (
+              <BeverageCard
+                key={entry.id}
+                entry={entry}
+                onClick={() => onEditEntry('beverage', entry)}
               />
             )
           default:

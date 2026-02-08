@@ -26,9 +26,9 @@ const menuItems = [
     ),
   },
   {
-    id: 'pain',
-    label: 'Pain',
-    className: 'fab-menu-btn--pain',
+    id: 'beverage',
+    label: 'Beverage',
+    className: 'fab-menu-btn--beverage',
     icon: (
       <svg
         width="22"
@@ -40,7 +40,8 @@ const menuItems = [
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+        <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+        <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z" />
       </svg>
     ),
   },
@@ -62,6 +63,25 @@ const menuItems = [
         <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
         <path d="M8 12h8" />
         <path d="M12 8v8" />
+      </svg>
+    ),
+  },
+  {
+    id: 'pain',
+    label: 'Pain',
+    className: 'fab-menu-btn--pain',
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
       </svg>
     ),
   },

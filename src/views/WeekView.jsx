@@ -14,6 +14,7 @@ export default function WeekView() {
   const meals = [],
     pain = [],
     bowel = [],
+    beverages = [],
     summaries = []
   for (const day of days) {
     const d = state.data[day]
@@ -21,6 +22,7 @@ export default function WeekView() {
     meals.push(...d.meals)
     pain.push(...d.pain)
     bowel.push(...d.bowel)
+    beverages.push(...(d.beverages || []))
     if (d.summary) summaries.push(d.summary)
   }
 
@@ -65,10 +67,14 @@ export default function WeekView() {
         ).toFixed(1)
       : null
 
+  const caffeineCount = beverages.filter(b => b.caffeine).length
+  const alcoholCount = beverages.filter(b => b.alcohol).length
+
   const hasData =
     meals.length > 0 ||
     pain.length > 0 ||
     bowel.length > 0 ||
+    beverages.length > 0 ||
     summaries.length > 0
 
   function prevWeek() {
@@ -180,6 +186,24 @@ export default function WeekView() {
                     ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {beverages.length > 0 && (
+            <div className="week-section">
+              <div className="week-section-title">Beverages</div>
+              <div className="week-stat">
+                <span className="week-stat-label">Total logged</span>
+                <span className="week-stat-value">{beverages.length}</span>
+              </div>
+              <div className="week-stat">
+                <span className="week-stat-label">With caffeine</span>
+                <span className="week-stat-value">{caffeineCount}</span>
+              </div>
+              <div className="week-stat">
+                <span className="week-stat-label">With alcohol</span>
+                <span className="week-stat-value">{alcoholCount}</span>
+              </div>
             </div>
           )}
 

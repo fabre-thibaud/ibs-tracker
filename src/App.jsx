@@ -9,6 +9,7 @@ import ExportView from './views/ExportView.jsx'
 import MealForm from './forms/MealForm.jsx'
 import PainForm from './forms/PainForm.jsx'
 import BowelForm from './forms/BowelForm.jsx'
+import BeverageForm from './forms/BeverageForm.jsx'
 import SummaryForm from './forms/SummaryForm.jsx'
 
 export default function App() {
@@ -52,6 +53,8 @@ export default function App() {
         return <PainForm {...props} />
       case 'bowel':
         return <BowelForm {...props} />
+      case 'beverage':
+        return <BeverageForm {...props} />
       case 'summary':
         return <SummaryForm {...props} />
       default:

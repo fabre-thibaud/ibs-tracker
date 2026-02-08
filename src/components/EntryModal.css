@@ -56,6 +56,9 @@
 .modal-title-dot--summary {
   background: var(--summary-color);
 }
+.modal-title-dot--beverage {
+  background: var(--beverage-color);
+}
 
 .modal-close {
   width: var(--min-touch);
@@ -111,6 +114,9 @@
 }
 .modal-save-btn--summary {
   background: var(--summary-color);
+}
+.modal-save-btn--beverage {
+  background: var(--beverage-color);
 }
 
 .modal-delete-btn {

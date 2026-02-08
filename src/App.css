@@ -57,6 +57,8 @@ button {
   --bowel-bg: #fffbeb;
   --summary-color: #8b5cf6;
   --summary-bg: #f5f3ff;
+  --beverage-color: #06b6d4;
+  --beverage-bg: #ecfeff;
 
   /* Severity scale */
   --good: #22c55e;
@@ -96,6 +98,7 @@ button {
   --pain-bg: #3f1c1c;
   --bowel-bg: #3f2f0a;
   --summary-bg: #2d1f5e;
+  --beverage-bg: #0c3547;
   --good-bg: #14332a;
   --caution-bg: #3f2f0a;
   --concern-bg: #3f1c1c;
