@@ -25,7 +25,7 @@ export default function MealForm({ date, entry, onClose }) {
       id: entry?.id || `m_${Date.now()}`,
       time,
       type: mealType,
-      content: items.map((item) => item.name).join(', ') || '',
+      content: items.map(item => item.name).join(', ') || '',
       items,
       portion,
       highFat,
@@ -54,9 +54,19 @@ export default function MealForm({ date, entry, onClose }) {
       onClose={onClose}
     >
       <TimeField label="Time" value={time} onChange={setTime} />
-      <OptionButtons label="Meal Type" options={MEAL_TYPES} value={mealType} onChange={setMealType} />
+      <OptionButtons
+        label="Meal Type"
+        options={MEAL_TYPES}
+        value={mealType}
+        onChange={setMealType}
+      />
       <FoodInput label="Food & Ingredients" value={items} onChange={setItems} />
-      <OptionButtons label="Portion Size" options={PORTIONS} value={portion} onChange={setPortion} />
+      <OptionButtons
+        label="Portion Size"
+        options={PORTIONS}
+        value={portion}
+        onChange={setPortion}
+      />
       <Toggle label="High-Fat Meal" value={highFat} onChange={setHighFat} />
     </EntryModal>
   )

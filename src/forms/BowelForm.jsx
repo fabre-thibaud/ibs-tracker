@@ -8,8 +8,16 @@ import Toggle from '../components/fields/Toggle.jsx'
 import '../components/fields/fields.css'
 
 const BRISTOL_TYPES = [
-  { type: 1, label: 'Type 1', desc: 'Separate hard lumps (severe constipation)' },
-  { type: 2, label: 'Type 2', desc: 'Lumpy and sausage-like (mild constipation)' },
+  {
+    type: 1,
+    label: 'Type 1',
+    desc: 'Separate hard lumps (severe constipation)',
+  },
+  {
+    type: 2,
+    label: 'Type 2',
+    desc: 'Lumpy and sausage-like (mild constipation)',
+  },
   { type: 3, label: 'Type 3', desc: 'Sausage with cracks (normal)' },
   { type: 4, label: 'Type 4', desc: 'Smooth, soft sausage (ideal)' },
   { type: 5, label: 'Type 5', desc: 'Soft blobs (lacking fiber)' },
@@ -29,7 +37,9 @@ export default function BowelForm({ date, entry, onClose }) {
   const [blood, setBlood] = useState(entry?.blood ?? false)
   const [mucus, setMucus] = useState(entry?.mucus ?? false)
   const [urgency, setUrgency] = useState(entry?.urgency ?? false)
-  const [completeEvacuation, setCompleteEvacuation] = useState(entry?.completeEvacuation ?? null)
+  const [completeEvacuation, setCompleteEvacuation] = useState(
+    entry?.completeEvacuation ?? null
+  )
 
   function handleSave() {
     const data = {
@@ -70,7 +80,7 @@ export default function BowelForm({ date, entry, onClose }) {
       <div className="field">
         <label className="field-label">Bristol Stool Scale</label>
         <div className="bristol-buttons">
-          {BRISTOL_TYPES.map((b) => (
+          {BRISTOL_TYPES.map(b => (
             <button
               key={b.type}
               type="button"
@@ -88,11 +98,20 @@ export default function BowelForm({ date, entry, onClose }) {
         </div>
       </div>
 
-      <OptionButtons label="Color" options={COLORS} value={color} onChange={setColor} />
+      <OptionButtons
+        label="Color"
+        options={COLORS}
+        value={color}
+        onChange={setColor}
+      />
       <Toggle label="Blood Present" value={blood} onChange={setBlood} />
       <Toggle label="Mucus Present" value={mucus} onChange={setMucus} />
       <Toggle label="Urgency" value={urgency} onChange={setUrgency} />
-      <Toggle label="Complete Evacuation" value={completeEvacuation} onChange={setCompleteEvacuation} />
+      <Toggle
+        label="Complete Evacuation"
+        value={completeEvacuation}
+        onChange={setCompleteEvacuation}
+      />
     </EntryModal>
   )
 }

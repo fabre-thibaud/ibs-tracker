@@ -34,11 +34,32 @@ export default function SummaryForm({ date, entry, onClose }) {
       onDelete={isEdit ? handleDelete : null}
       onClose={onClose}
     >
-      <ScaleSelector label="Overall Feeling (1-10)" value={feeling} onChange={setFeeling} />
-      <ScaleSelector label="Energy Level (1-10)" value={energy} onChange={setEnergy} />
-      <ScaleSelector label="Sleep Quality (1-10, optional)" value={sleep} onChange={setSleep} />
-      <ScaleSelector label="Stress Level (1-10, optional)" value={stress} onChange={setStress} />
-      <TextArea label="Notes" value={notes} onChange={setNotes} placeholder="How was your day?" />
+      <ScaleSelector
+        label="Overall Feeling (1-10)"
+        value={feeling}
+        onChange={setFeeling}
+      />
+      <ScaleSelector
+        label="Energy Level (1-10)"
+        value={energy}
+        onChange={setEnergy}
+      />
+      <ScaleSelector
+        label="Sleep Quality (1-10, optional)"
+        value={sleep}
+        onChange={setSleep}
+      />
+      <ScaleSelector
+        label="Stress Level (1-10, optional)"
+        value={stress}
+        onChange={setStress}
+      />
+      <TextArea
+        label="Notes"
+        value={notes}
+        onChange={setNotes}
+        placeholder="How was your day?"
+      />
     </EntryModal>
   )
 }

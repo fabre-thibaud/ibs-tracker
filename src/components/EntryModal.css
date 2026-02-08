@@ -1,7 +1,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 300;
   animation: fadeIn 0.15s ease;
 }
@@ -44,10 +44,18 @@
   border-radius: 50%;
 }
 
-.modal-title-dot--meal { background: var(--meal-color); }
-.modal-title-dot--pain { background: var(--pain-color); }
-.modal-title-dot--bowel { background: var(--bowel-color); }
-.modal-title-dot--summary { background: var(--summary-color); }
+.modal-title-dot--meal {
+  background: var(--meal-color);
+}
+.modal-title-dot--pain {
+  background: var(--pain-color);
+}
+.modal-title-dot--bowel {
+  background: var(--bowel-color);
+}
+.modal-title-dot--summary {
+  background: var(--summary-color);
+}
 
 .modal-close {
   width: var(--min-touch);
@@ -89,11 +97,21 @@
   transition: opacity 0.15s;
 }
 
-.modal-save-btn:active { opacity: 0.85; }
-.modal-save-btn--meal { background: var(--meal-color); }
-.modal-save-btn--pain { background: var(--pain-color); }
-.modal-save-btn--bowel { background: var(--bowel-color); }
-.modal-save-btn--summary { background: var(--summary-color); }
+.modal-save-btn:active {
+  opacity: 0.85;
+}
+.modal-save-btn--meal {
+  background: var(--meal-color);
+}
+.modal-save-btn--pain {
+  background: var(--pain-color);
+}
+.modal-save-btn--bowel {
+  background: var(--bowel-color);
+}
+.modal-save-btn--summary {
+  background: var(--summary-color);
+}
 
 .modal-delete-btn {
   height: var(--button-height);
@@ -111,8 +129,12 @@
 }
 
 @keyframes slideUpModal {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* ===== Settings Dropdown (appended here) ===== */

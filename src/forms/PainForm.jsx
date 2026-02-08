@@ -8,7 +8,13 @@ import ScaleSelector from '../components/fields/ScaleSelector.jsx'
 import TextArea from '../components/fields/TextArea.jsx'
 import '../components/fields/fields.css'
 
-const LOCATIONS = ['Right Upper Abdomen', 'Left Upper Abdomen', 'Central', 'Lower', 'Other']
+const LOCATIONS = [
+  'Right Upper Abdomen',
+  'Left Upper Abdomen',
+  'Central',
+  'Lower',
+  'Other',
+]
 const CHARACTERS = ['Cramping', 'Sharp', 'Dull', 'Burning', 'Other']
 
 export default function PainForm({ date, entry, onClose }) {
@@ -58,23 +64,47 @@ export default function PainForm({ date, entry, onClose }) {
       onClose={onClose}
     >
       <TimeField label="Time of Onset" value={time} onChange={setTime} />
-      <OptionButtons label="Location" options={LOCATIONS} value={location} onChange={setLocation} />
-      <ScaleSelector label="Severity (1-10)" value={severity} onChange={setSeverity} />
+      <OptionButtons
+        label="Location"
+        options={LOCATIONS}
+        value={location}
+        onChange={setLocation}
+      />
+      <ScaleSelector
+        label="Severity (1-10)"
+        value={severity}
+        onChange={setSeverity}
+      />
       <div className="field">
         <label className="field-label">Duration (minutes)</label>
         <input
           type="number"
           className="number-input"
           value={duration}
-          onChange={(e) => setDuration(e.target.value)}
+          onChange={e => setDuration(e.target.value)}
           placeholder="e.g. 30"
           min="1"
           inputMode="numeric"
         />
       </div>
-      <OptionButtons label="Character" options={CHARACTERS} value={character} onChange={setCharacter} />
-      <TextArea label="What preceded it?" value={precededBy} onChange={setPrecededBy} placeholder="Optional" />
-      <TextArea label="What helped?" value={helpedBy} onChange={setHelpedBy} placeholder="Optional" />
+      <OptionButtons
+        label="Character"
+        options={CHARACTERS}
+        value={character}
+        onChange={setCharacter}
+      />
+      <TextArea
+        label="What preceded it?"
+        value={precededBy}
+        onChange={setPrecededBy}
+        placeholder="Optional"
+      />
+      <TextArea
+        label="What helped?"
+        value={helpedBy}
+        onChange={setHelpedBy}
+        placeholder="Optional"
+      />
     </EntryModal>
   )
 }

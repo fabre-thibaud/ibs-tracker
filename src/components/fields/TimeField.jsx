@@ -8,7 +8,7 @@ export default function TimeField({ label, value, onChange }) {
         type="time"
         className="time-input"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
       />
     </div>
   )
