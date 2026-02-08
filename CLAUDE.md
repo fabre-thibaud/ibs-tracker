@@ -61,7 +61,7 @@ Configured in `vite.config.js` via `vite-plugin-pwa`. Base path is `/ibs-tracker
 
 ## Key Conventions
 
-- **Commits**: Use conventional commits 1.0 format for commit messages
+- **Commits**: Use conventional commits 1.0 format for commit messages. Include type and scope prefix.
 - **Code style**: ESLint flat config (`eslint.config.js`) + Prettier (`.prettierrc.json`). Code is auto-formatted on save (VSCode) and pre-commit (husky). No semicolons, single quotes, trailing commas (ES5), 80-char line width.
 - **File organization**:
   - Reusable form fields in `src/components/fields/` (TimeField, ScaleSelector, OptionButtons, Toggle, TextArea, FoodInput)
