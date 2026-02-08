@@ -1,46 +1,9 @@
 const BASE_URL = 'https://world.openfoodfacts.org/cgi/search.pl'
-const LOCAL_CACHE_KEY = 'ibs-tracker-food-cache'
 const STATS_KEY = 'ibs-tracker-food-stats'
 const USER_AGENT =
   'ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)'
 
-// --- Local food cache (localStorage, persisted across sessions) ---
-
-function getLocalCache() {
-  try {
-    const raw = localStorage.getItem(LOCAL_CACHE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-/**
- * Save a food name to the local cache (deduped by lowercase name)
- */
-export function cacheFood(name) {
-  if (!name || !name.trim()) return
-  const foods = getLocalCache()
-  const normalized = name.trim().toLowerCase()
-  if (foods.some(f => f.name.toLowerCase() === normalized)) return
-  foods.push({ name: name.trim() })
-  localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(foods))
-}
-
-/**
- * Search the local food cache by substring match
- * @param {string} query - Search query (min 2 characters)
- * @returns {Array<{name: string}>} - Matching foods from local cache
- */
-export function searchLocalFoods(query) {
-  if (!query || query.length < 2) return []
-  const normalized = query.toLowerCase().trim()
-  return getLocalCache()
-    .filter(f => f.name.toLowerCase().includes(normalized))
-    .slice(0, 8)
-}
-
-// --- Food statistics (localStorage, frequency tracking) ---
+// --- Food statistics (localStorage, frequency tracking by food ID) ---
 
 function getFoodStats() {
   try {
@@ -53,14 +16,13 @@ function getFoodStats() {
 
 /**
  * Increment the usage count for a food item
- * @param {string} name - Food name to track
+ * @param {string} foodId - Food registry ID (e.g. "f_1")
  */
-export function incrementFoodStat(name) {
-  if (!name || !name.trim()) return
+export function incrementFoodStat(foodId) {
+  if (!foodId) return
 
   const stats = getFoodStats()
-  const normalized = name.trim()
-  stats[normalized] = (stats[normalized] || 0) + 1
+  stats[foodId] = (stats[foodId] || 0) + 1
 
   try {
     localStorage.setItem(STATS_KEY, JSON.stringify(stats))
@@ -71,20 +33,18 @@ export function incrementFoodStat(name) {
 
 /**
  * Decrement the usage count for a food item
- * @param {string} name - Food name to track
+ * @param {string} foodId - Food registry ID (e.g. "f_1")
  */
-export function decrementFoodStat(name) {
-  if (!name || !name.trim()) return
+export function decrementFoodStat(foodId) {
+  if (!foodId) return
 
   const stats = getFoodStats()
-  const normalized = name.trim()
 
-  if (stats[normalized] && stats[normalized] > 0) {
-    stats[normalized] -= 1
+  if (stats[foodId] && stats[foodId] > 0) {
+    stats[foodId] -= 1
 
-    // Remove from stats if count reaches 0
-    if (stats[normalized] === 0) {
-      delete stats[normalized]
+    if (stats[foodId] === 0) {
+      delete stats[foodId]
     }
 
     try {
@@ -96,15 +56,15 @@ export function decrementFoodStat(name) {
 }
 
 /**
- * Get the top N most frequently used foods
+ * Get the top N most frequently used food IDs
  * @param {number} count - Number of top foods to return (default 10)
- * @returns {Array<string>} - Array of food names, sorted by frequency
+ * @returns {Array<string>} - Array of food IDs, sorted by frequency
  */
 export function getTopFoods(count = 10) {
   const stats = getFoodStats()
   const sorted = Object.entries(stats)
-    .sort(([, a], [, b]) => b - a) // Sort by count descending
-    .map(([name]) => name)
+    .sort(([, a], [, b]) => b - a)
+    .map(([id]) => id)
     .slice(0, count)
 
   return sorted
@@ -119,7 +79,7 @@ export function getTopFoods(count = 10) {
  * never on keystroke (search-as-you-type is prohibited by the API)
  *
  * @param {string} query - Search query (min 2 characters)
- * @returns {Promise<Array<{name: string}>>} - List of food names
+ * @returns {Promise<Array<{name: string, brand: string|null, externalId: string|null}>>} - List of foods with brand and optional OFF barcode
  */
 export async function searchFoods(query) {
   if (!query || query.length < 2) return []
@@ -130,7 +90,7 @@ export async function searchFoods(query) {
     url.searchParams.set('search_simple', '1')
     url.searchParams.set('json', '1')
     url.searchParams.set('page_size', '8')
-    url.searchParams.set('fields', 'product_name,product_name_fr')
+    url.searchParams.set('fields', 'product_name,product_name_fr,code,brands')
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -150,10 +110,12 @@ export async function searchFoods(query) {
     const data = await response.json()
     const products = data.products || []
 
-    // Prefer French names, fallback to English
+    // Prefer English names, fallback to French
     const results = products.map(product => ({
       name:
-        product.product_name_fr || product.product_name || 'Unknown product',
+        product.product_name || product.product_name_fr || 'Unknown product',
+      brand: product.brands || null,
+      externalId: product.code || null,
     }))
 
     return results

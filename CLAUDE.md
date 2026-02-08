@@ -35,13 +35,13 @@ Access state and actions anywhere via the `useData()` hook.
 
 - **Main data**: localStorage key `ibs-tracker-data` — JSON object keyed by date `YYYY-MM-DD`, each containing `{ meals[], pain[], bowel[], beverages[], summary }`.
 - **Settings**: localStorage key `ibs-tracker-settings` — `{ theme: "light" | "dark" }`.
-- **Food cache**: localStorage key `ibs-tracker-food-cache` — previously searched food names for instant local autocomplete.
-- **Food stats**: localStorage key `ibs-tracker-food-stats` — `{ [foodName]: count }` for frequency-based quick-add buttons.
+- **Food registry**: localStorage key `ibs-tracker-food-registry` — `{ _nextId: number, [foodId]: { id, name, fodmap, externalId, details } }`. Each food has a stable local ID (`f_1`, `f_2`, ...) and an optional Open Food Facts barcode (`externalId`). Entry items reference foods as `{ foodId, name, fodmap }` (denormalized for display).
+- **Food stats**: localStorage key `ibs-tracker-food-stats` — `{ [foodId]: count }` for frequency-based quick-add buttons.
 - Entry IDs are timestamp-based with type prefix: `m_` (meal), `p_` (pain), `b_` (bowel), `d_` (beverage/drink).
 
 ### Data Migrations
 
-`src/utils/migrations.js` — versioned migration system. Current version is 3. When adding schema changes, add a migration function to the `migrations` array and bump `CURRENT_VERSION`. Old data is migrated on load.
+`src/utils/migrations.js` — versioned migration system. Current version is 4. When adding schema changes, add a migration function to the `migrations` array and bump `CURRENT_VERSION`. Old data is migrated on load.
 
 ### Navigation
 
@@ -49,7 +49,7 @@ No router. Three tabs (Day/Week/Export) managed via `activeTab` in state. Forms 
 
 ### Food Search
 
-`src/utils/openfoodfacts.js` — Open Food Facts API integration. Rate limit: 10 req/min. Search must only be triggered on explicit user action (button click or Enter key), never on keystroke. French product names are preferred (`product_name_fr` → `product_name` fallback). Local cache provides instant search-as-you-type; API search is manual only.
+`src/utils/openfoodfacts.js` — Open Food Facts API integration. Rate limit: 10 req/min. Search must only be triggered on explicit user action (button click or Enter key), never on keystroke. English product names are preferred (`product_name` → `product_name_fr` fallback). Returns `{ name, brand, externalId }` per result. Food registry (`src/utils/food-registry.js`) provides instant search-as-you-type from previously used foods; API search is manual only.
 
 ### Styling
 

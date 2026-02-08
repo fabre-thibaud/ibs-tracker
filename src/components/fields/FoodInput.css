@@ -132,6 +132,13 @@
   font-size: 0.9rem;
 }
 
+.food-suggestion-brand {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
 .food-loading {
   padding: 12px;
   text-align: center;

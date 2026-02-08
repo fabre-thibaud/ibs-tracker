@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
 import {
+  registerFood,
+  searchRegistry,
+  findById,
+} from '../../utils/food-registry.js'
+import {
   searchFoods,
-  searchLocalFoods,
-  cacheFood,
   incrementFoodStat,
   decrementFoodStat,
   getTopFoods,
@@ -55,19 +58,24 @@ export default function FoodInput({ label, value = [], onChange }) {
   const [quickAddFoods, setQuickAddFoods] = useState([])
   const inputRef = useRef(null)
 
-  // Load top foods from statistics on mount
-  useEffect(() => {
-    const topFoods = getTopFoods(10)
-    if (topFoods.length >= 10) {
-      setQuickAddFoods(topFoods)
+  function refreshQuickAdd() {
+    const topFoodIds = getTopFoods(10)
+    const resolved = topFoodIds.map(id => findById(id)).filter(Boolean)
+    if (resolved.length >= 10) {
+      setQuickAddFoods(resolved.map(f => f.name))
     } else {
-      // Combine top foods with fallback to get 12 items
-      const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
+      const names = resolved.map(f => f.name)
+      const combined = [...names, ...FALLBACK_FOODS].slice(0, 12)
       setQuickAddFoods(combined)
     }
+  }
+
+  // Load top foods from statistics on mount
+  useEffect(() => {
+    refreshQuickAdd()
   }, [])
 
-  // Search local cache as user types (instant, no API call)
+  // Search registry as user types (instant, no API call)
   useEffect(() => {
     if (inputValue.length < 2) {
       setSuggestions([])
@@ -76,14 +84,12 @@ export default function FoodInput({ label, value = [], onChange }) {
       return
     }
 
-    // Search local cache only (instant, no API call)
-    const localResults = searchLocalFoods(inputValue)
+    const localResults = searchRegistry(inputValue)
     if (localResults.length > 0) {
-      setSuggestions(localResults)
+      setSuggestions(localResults.map(f => ({ name: f.name })))
       setIsLocalResults(true)
       setShowDropdown(true)
     } else {
-      // Show hint to trigger online search
       setSuggestions([])
       setIsLocalResults(false)
       setShowDropdown(false)
@@ -101,50 +107,38 @@ export default function FoodInput({ label, value = [], onChange }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  function addFood(foodName) {
+  function addFood(foodName, externalId = null) {
     if (!foodName.trim()) return
 
-    const { fodmap } = matchFodmap(foodName)
-    const newItem = { name: foodName.trim(), fodmap: fodmap || 'unknown' }
+    const { fodmap, details } = matchFodmap(foodName)
+    const entry = registerFood({
+      name: foodName.trim(),
+      fodmap: fodmap || 'unknown',
+      externalId,
+      details: details || null,
+    })
 
-    // Avoid duplicates
-    if (
-      value.some(item => item.name.toLowerCase() === newItem.name.toLowerCase())
-    ) {
+    // Avoid duplicates by foodId
+    if (value.some(item => item.foodId === entry.id)) {
       return
     }
 
-    cacheFood(foodName)
-    incrementFoodStat(foodName)
+    const newItem = { foodId: entry.id, name: entry.name, fodmap: entry.fodmap }
+    incrementFoodStat(entry.id)
     onChange([...value, newItem])
     setInputValue('')
     setSuggestions([])
     setShowDropdown(false)
     setIsLocalResults(false)
 
-    // Refresh quick-add buttons after adding a food
-    const topFoods = getTopFoods(10)
-    if (topFoods.length >= 10) {
-      setQuickAddFoods(topFoods)
-    } else {
-      const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
-      setQuickAddFoods(combined)
-    }
+    refreshQuickAdd()
   }
 
   function removeFood(index) {
     const foodToRemove = value[index]
     if (foodToRemove) {
-      decrementFoodStat(foodToRemove.name)
-
-      // Refresh quick-add buttons after removing a food
-      const topFoods = getTopFoods(10)
-      if (topFoods.length >= 10) {
-        setQuickAddFoods(topFoods)
-      } else {
-        const combined = [...topFoods, ...FALLBACK_FOODS].slice(0, 12)
-        setQuickAddFoods(combined)
-      }
+      decrementFoodStat(foodToRemove.foodId)
+      refreshQuickAdd()
     }
 
     onChange(value.filter((_, i) => i !== index))
@@ -169,7 +163,7 @@ export default function FoodInput({ label, value = [], onChange }) {
 
       // If there are suggestions, use the first one
       if (suggestions.length > 0) {
-        addFood(suggestions[0].name)
+        addFood(suggestions[0].name, suggestions[0].externalId)
       } else if (inputValue.trim()) {
         // No suggestions - trigger online search or add as-is if already searched
         if (!loading && inputValue.length >= 2) {
@@ -231,7 +225,8 @@ export default function FoodInput({ label, value = [], onChange }) {
 
             {!loading && suggestions.length === 0 && inputValue.length >= 2 && (
               <div className="food-no-results">
-                No results found. Press Enter to add "{inputValue}" anyway
+                No results found. Press Enter to add &quot;{inputValue}&quot;
+                anyway
               </div>
             )}
 
@@ -242,10 +237,15 @@ export default function FoodInput({ label, value = [], onChange }) {
                   <div
                     key={idx}
                     className="food-suggestion-item"
-                    onClick={() => addFood(food.name)}
+                    onClick={() => addFood(food.name, food.externalId)}
                   >
                     <FodmapDot fodmap={fodmap} />
                     <span className="food-suggestion-name">{food.name}</span>
+                    {food.brand && (
+                      <span className="food-suggestion-brand">
+                        {food.brand}
+                      </span>
+                    )}
                   </div>
                 )
               })}
