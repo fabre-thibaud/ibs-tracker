@@ -82,6 +82,9 @@
 .fab-menu-btn--summary {
   background: var(--summary-color);
 }
+.fab-menu-btn--beverage {
+  background: var(--beverage-color);
+}
 
 .fab-menu-label {
   background: var(--bg-card);

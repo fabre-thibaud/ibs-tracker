@@ -7,6 +7,7 @@ export function generateWeeklySummary(data, dateKey) {
   const allMeals = []
   const allPain = []
   const allBowel = []
+  const allBeverages = []
   const summaries = []
 
   for (const day of days) {
@@ -15,6 +16,7 @@ export function generateWeeklySummary(data, dateKey) {
     allMeals.push(...d.meals)
     allPain.push(...d.pain)
     allBowel.push(...d.bowel)
+    allBeverages.push(...(d.beverages || []))
     if (d.summary) summaries.push(d.summary)
   }
 
@@ -123,6 +125,14 @@ export function generateWeeklySummary(data, dateKey) {
     lines.push(`- Color: ${colorStr}`)
   }
   lines.push('')
+  lines.push(`BEVERAGES LOGGED: ${allBeverages.length}`)
+  if (allBeverages.length > 0) {
+    const caffeineCount = allBeverages.filter(b => b.caffeine).length
+    const alcoholCount = allBeverages.filter(b => b.alcohol).length
+    lines.push(`- With caffeine: ${caffeineCount}`)
+    lines.push(`- With alcohol: ${alcoholCount}`)
+  }
+  lines.push('')
   lines.push('DAILY METRICS:')
   lines.push(`- Average feeling: ${avgFeeling}/10`)
   lines.push(`- Average energy: ${avgEnergy}/10`)
@@ -178,6 +188,22 @@ export function generateCSV(data) {
           'Bowel',
           b.time,
           `"Bristol ${b.bristolType || '?'} - ${b.color || ''} - Blood:${b.blood ? 'Y' : 'N'} Mucus:${b.mucus ? 'Y' : 'N'} Urgent:${b.urgency ? 'Y' : 'N'}"`,
+        ].join(',')
+      )
+    }
+
+    for (const b of day.beverages || []) {
+      const beverageContent =
+        b.items && b.items.length > 0
+          ? b.items.map(item => item.name).join(', ')
+          : b.content || ''
+
+      rows.push(
+        [
+          date,
+          'Beverage',
+          b.time,
+          `"${beverageContent.replace(/"/g, '""')} - ${b.volume || ''} - Caffeine:${b.caffeine ? 'Y' : 'N'} Alcohol:${b.alcohol ? 'Y' : 'N'} Carbonated:${b.carbonated ? 'Y' : 'N'} - ${b.temperature || ''}"`,
         ].join(',')
       )
     }
