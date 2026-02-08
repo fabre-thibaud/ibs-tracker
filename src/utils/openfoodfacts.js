@@ -1,7 +1,8 @@
 const BASE_URL = 'https://world.openfoodfacts.org/cgi/search.pl'
 const LOCAL_CACHE_KEY = 'ibs-tracker-food-cache'
 const STATS_KEY = 'ibs-tracker-food-stats'
-const USER_AGENT = 'ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)'
+const USER_AGENT =
+  'ibs-tracker/1.0 (https://github.com/fabre-thibaud/ibs-tracker)'
 
 // --- Local food cache (localStorage, persisted across sessions) ---
 
@@ -21,7 +22,7 @@ export function cacheFood(name) {
   if (!name || !name.trim()) return
   const foods = getLocalCache()
   const normalized = name.trim().toLowerCase()
-  if (foods.some((f) => f.name.toLowerCase() === normalized)) return
+  if (foods.some(f => f.name.toLowerCase() === normalized)) return
   foods.push({ name: name.trim() })
   localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(foods))
 }
@@ -35,7 +36,7 @@ export function searchLocalFoods(query) {
   if (!query || query.length < 2) return []
   const normalized = query.toLowerCase().trim()
   return getLocalCache()
-    .filter((f) => f.name.toLowerCase().includes(normalized))
+    .filter(f => f.name.toLowerCase().includes(normalized))
     .slice(0, 8)
 }
 
@@ -138,7 +139,11 @@ export async function searchFoods(query) {
     })
 
     if (!response.ok) {
-      console.error('Open Food Facts API error:', response.status, response.statusText)
+      console.error(
+        'Open Food Facts API error:',
+        response.status,
+        response.statusText
+      )
       return []
     }
 
@@ -146,8 +151,9 @@ export async function searchFoods(query) {
     const products = data.products || []
 
     // Prefer French names, fallback to English
-    const results = products.map((product) => ({
-      name: product.product_name_fr || product.product_name || 'Unknown product',
+    const results = products.map(product => ({
+      name:
+        product.product_name_fr || product.product_name || 'Unknown product',
     }))
 
     return results

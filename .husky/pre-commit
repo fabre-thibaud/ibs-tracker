@@ -1,1 +1,4 @@
+#!/usr/bin/env sh
+. ~/.nvm/nvm.sh
+nvm use 22
 npx lint-staged

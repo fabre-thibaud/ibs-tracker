@@ -1,12 +1,36 @@
 import { useState, useEffect, useRef } from 'react'
 import { matchFodmap } from '../../utils/fodmap.js'
-import { searchFoods, searchLocalFoods, cacheFood, incrementFoodStat, decrementFoodStat, getTopFoods } from '../../utils/openfoodfacts.js'
+import {
+  searchFoods,
+  searchLocalFoods,
+  cacheFood,
+  incrementFoodStat,
+  decrementFoodStat,
+  getTopFoods,
+} from '../../utils/openfoodfacts.js'
 import './FoodInput.css'
 
 const FALLBACK_FOODS = [
-  'Rice', 'Chicken', 'Eggs', 'Bread', 'Pasta', 'Potato', 'Banana', 'Oats',
-  'Salmon', 'Yogurt', 'Cheese', 'Tomato', 'Spinach', 'Carrot', 'Apple',
-  'Onion', 'Garlic', 'Avocado', 'Milk', 'Butter'
+  'Rice',
+  'Chicken',
+  'Eggs',
+  'Bread',
+  'Pasta',
+  'Potato',
+  'Banana',
+  'Oats',
+  'Salmon',
+  'Yogurt',
+  'Cheese',
+  'Tomato',
+  'Spinach',
+  'Carrot',
+  'Apple',
+  'Onion',
+  'Garlic',
+  'Avocado',
+  'Milk',
+  'Butter',
 ]
 
 function FodmapDot({ fodmap }) {
@@ -133,7 +157,7 @@ export default function FoodInput({ label, value = [], onChange }) {
     setLoading(true)
     setShowDropdown(true)
 
-    searchFoods(inputValue).then((results) => {
+    searchFoods(inputValue).then(results => {
       setSuggestions(results)
       setLoading(false)
     })
@@ -166,7 +190,7 @@ export default function FoodInput({ label, value = [], onChange }) {
 
       {/* Quick-add buttons */}
       <div className="food-quick-add">
-        {quickAddFoods.map((food) => (
+        {quickAddFoods.map(food => (
           <button
             key={food}
             type="button"
@@ -186,7 +210,7 @@ export default function FoodInput({ label, value = [], onChange }) {
             className="food-text-input"
             placeholder="Add a food or ingredient..."
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onFocus={() => inputValue.length >= 2 && setShowDropdown(true)}
           />
@@ -206,7 +230,9 @@ export default function FoodInput({ label, value = [], onChange }) {
             {loading && <div className="food-loading">Searching online...</div>}
 
             {!loading && suggestions.length === 0 && inputValue.length >= 2 && (
-              <div className="food-no-results">No results found. Press Enter to add "{inputValue}" anyway</div>
+              <div className="food-no-results">
+                No results found. Press Enter to add "{inputValue}" anyway
+              </div>
             )}
 
             {!loading &&
