@@ -9,6 +9,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-bottom: 16px;
 }
 
 .food-quick-btn {
@@ -33,6 +34,7 @@
 /* Input container with dropdown */
 .food-input-container {
   position: relative;
+  margin-bottom: 16px;
 }
 
 .food-text-input {
